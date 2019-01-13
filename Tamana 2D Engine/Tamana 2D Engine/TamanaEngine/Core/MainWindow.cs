@@ -8,7 +8,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
-namespace TamanaEngine
+namespace TamanaEngine.Core
 {
     class MainWindow : GameWindow
     {
@@ -16,14 +16,15 @@ namespace TamanaEngine
             : base(1280, // initial width
         720, // initial height
         GraphicsMode.Default,
-        "dreamstatecoding",  // initial title
+        "Tamana Engine",  // initial title
         GameWindowFlags.Default,
         DisplayDevice.Default,
         4, // OpenGL major version
         0, // OpenGL minor version
         GraphicsContextFlags.ForwardCompatible)
         {
-
+            var go = new GameObject("Wira");
+            go.AddComponent<Transform>();
         }
 
         protected override void OnResize(EventArgs e)
@@ -38,7 +39,7 @@ namespace TamanaEngine
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            
+            RuntimeUpdater.InvokeUpdateMethods();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -52,6 +53,8 @@ namespace TamanaEngine
             backColor.B = 0.3f;
             GL.ClearColor(backColor);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            RuntimeUpdater.InvokeRenderMethods();
 
             SwapBuffers();
         }
