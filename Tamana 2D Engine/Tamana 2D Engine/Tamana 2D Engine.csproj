@@ -51,11 +51,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TamanaEngine\Components\Camera.cs" />
     <Compile Include="TamanaEngine\Components\SpriteRenderer.cs" />
     <Compile Include="TamanaEngine\Core\Component.cs" />
     <Compile Include="TamanaEngine\Core\ComponentMethodCaller.cs" />
     <Compile Include="TamanaEngine\Core\GameObjectAndComponents.cs" />
     <Compile Include="TamanaEngine\Core\LockBitmap.cs" />
+    <Compile Include="TamanaEngine\Core\Screen.cs" />
     <Compile Include="TamanaEngine\Core\Shader.cs" />
     <Compile Include="TamanaEngine\Core\VertexArrayObject.cs" />
     <Compile Include="TamanaEngine\Core\VertexBufferObject.cs" />

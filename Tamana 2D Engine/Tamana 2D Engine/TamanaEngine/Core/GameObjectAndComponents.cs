@@ -17,6 +17,11 @@ namespace TamanaEngine.Core
             this.gameObject = gameObject;
         }
 
+        public T FindComponent<T>() where T : Component
+        {
+            return components.Find(x => x.componenet is T).componenet as T;
+        }
+
         public void InvokeUpdate()
         {
             if (!gameObject.isActive)

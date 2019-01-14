@@ -7,12 +7,16 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
-using OpenTK;
 using OpenTK.Graphics.OpenGL;
+
+namespace TamanaEngine.Core
+{
+    delegate void BufferNewData(float[] data);
+}
 
 namespace TamanaEngine
 {
-    public class Sprite
+     public class Sprite
     {
         public RectangleF rect { private set; get; }
 
@@ -32,14 +36,18 @@ namespace TamanaEngine
             -0.5f,  0.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // top left 
         };
 
+        private float[] myVertices;
+
         public Sprite()
         {
+            myVertices = vertices;
             GenerateObject();
             LoadTexture("");
         }
 
         public Sprite(string path)
         {
+            myVertices = vertices;
             GenerateObject();
             LoadTexture(path);
         }
@@ -63,7 +71,7 @@ namespace TamanaEngine
             GL.BindVertexArray(VAO);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * myVertices.Length, myVertices, BufferUsageHint.StaticDraw);
 
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, sizeof(float) * 7, 0 * sizeof(float));
             GL.EnableVertexAttribArray(0);
@@ -73,6 +81,12 @@ namespace TamanaEngine
 
             GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, sizeof(float) * 7, 5 * sizeof(float));
             GL.EnableVertexAttribArray(2);
+        }
+
+        private void BufferNewData(float[] data)
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * data.Length, data, BufferUsageHint.StaticDraw);
         }
 
         private void LoadTexture(string path)
@@ -89,6 +103,8 @@ namespace TamanaEngine
                     bmp = CreateBitmap();
                 else bmp = LoadBitmap(path);
             }
+
+            rect = new RectangleF(0, 0, bmp.Width, bmp.Height);
 
             BitmapData data = bmp.LockBits(
                 new Rectangle(0, 0, bmp.Width, bmp.Height),

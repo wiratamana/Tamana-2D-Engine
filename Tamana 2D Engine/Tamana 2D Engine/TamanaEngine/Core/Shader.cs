@@ -54,5 +54,10 @@ namespace TamanaEngine.Core
         {
             GL.UseProgram(program);
         }
+
+        public void SetMatrix4(string uniformName, OpenTK.Matrix4 matrix4)
+        {
+            GL.UniformMatrix4(GL.GetUniformLocation(program, uniformName), false, ref matrix4);
+        }
     }
 }

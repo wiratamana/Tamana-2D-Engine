@@ -13,8 +13,8 @@ namespace TamanaEngine.Core
     class MainWindow : GameWindow
     {
         public MainWindow()
-            : base(1280, // initial width
-        720, // initial height
+            : base(Screen.width, // initial width
+        Screen.height, // initial height
         GraphicsMode.Default,
         "Tamana Engine",  // initial title
         GameWindowFlags.Default,
@@ -26,9 +26,16 @@ namespace TamanaEngine.Core
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
+
+            var mainCamera = new GameObject("MainCamera");
+            mainCamera.AddComponent<Camera>();
+
             var go = new GameObject("Wira");
             go.AddComponent<Transform>();
+            Console.WriteLine(go.GetComponent<Transform>().gameObject.GetType().Name);
             go.AddComponent<SpriteRenderer>();
+            Console.WriteLine(go.GetComponent<SpriteRenderer>().name);
+            go.transform.position = new Vector3(0, 0, 5);
         }
 
         protected override void OnResize(EventArgs e)

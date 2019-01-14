@@ -10,6 +10,9 @@ namespace TamanaEngine
     {
         private GameObject _gameObject;
         public GameObject gameObject { get { return _gameObject; } }
+
+        public Transform transform { get { return gameObject.transform; } }
+
         public string name { get { return gameObject.name; } }
 
         private Core.Start start;

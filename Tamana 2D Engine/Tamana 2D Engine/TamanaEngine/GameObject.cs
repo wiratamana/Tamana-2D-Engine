@@ -14,6 +14,9 @@ namespace TamanaEngine
     {
         public string name { get; set; }
 
+        private Transform _transform;
+        public Transform transform { get { return _transform; } }
+
         private List<ComponentMethodCaller> components = new List<ComponentMethodCaller>();
         private bool _isActive;
         public bool isActive { get { return _isActive; } }
@@ -23,6 +26,7 @@ namespace TamanaEngine
             name = "New GameObject";
 
             AddGameObjectToRuntimeUpdater();
+            AddTransformComponent();
             SetActive(true);
         }
 
@@ -31,6 +35,7 @@ namespace TamanaEngine
             this.name = name;
 
             AddGameObjectToRuntimeUpdater();
+            AddTransformComponent();
             SetActive(true);
         }
 
@@ -49,7 +54,7 @@ namespace TamanaEngine
             var newComponent = components.Find(x => x.componenet is T);
             if(newComponent != null)
             {
-                return newComponent as T;
+                return newComponent.componenet as T;
             }
 
             // Create new component and add it to components list.
@@ -75,12 +80,24 @@ namespace TamanaEngine
             if (_isActive)
                 start?.Invoke();
 
-            return newComponent as T;
+            return component as T;
         }
 
         public T GetComponent<T>() where T : Component
         {
-            return components.Find(x => x is T) as T;
+            return components.Find(x => x.componenet is T).componenet as T;
+        }
+
+        public static T FindObjectOfType<T>() where T : Component
+        {
+            foreach(var go in RuntimeUpdater.gameObjects)
+            {
+                var component = go.FindComponent<T>();
+                if (component != null)
+                    return component;
+            }
+
+            return null;
         }
 
         private void AddGameObjectToRuntimeUpdater()
@@ -88,10 +105,15 @@ namespace TamanaEngine
             RuntimeUpdater.gameObjects.Add(new GameObjectAndComponents(ref components, this));
         }
 
+        private void AddTransformComponent()
+        {
+            _transform = AddComponent<Transform>();
+        }
+
         private void InvokeEveryComponentStartMethod()
         {
             foreach (var component in components)
-                component.start.Invoke();
+                component.start?.Invoke();
         }
 
         private void SetComponentFieldGameObject(Component newComponent)
