@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace TamanaEngine.Core
 {
-    class Program
+    public class VertexArrayObject
     {
-        static void Main(string[] args)
-        {
-            new MainWindow().Run();
-        }
     }
 }

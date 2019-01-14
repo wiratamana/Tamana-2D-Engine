@@ -23,8 +23,12 @@ namespace TamanaEngine.Core
         0, // OpenGL minor version
         GraphicsContextFlags.ForwardCompatible)
         {
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
             var go = new GameObject("Wira");
             go.AddComponent<Transform>();
+            go.AddComponent<SpriteRenderer>();
         }
 
         protected override void OnResize(EventArgs e)

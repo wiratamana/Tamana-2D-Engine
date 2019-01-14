@@ -4,13 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TamanaEngine.Core
+namespace TamanaEngine
 {
-    class Program
+    public class Texture2D
     {
-        static void Main(string[] args)
+        public Texture2D()
         {
-            new MainWindow().Run();
+
+        }
+
+        public Texture2D(string path)
+        {
+
         }
     }
 }
