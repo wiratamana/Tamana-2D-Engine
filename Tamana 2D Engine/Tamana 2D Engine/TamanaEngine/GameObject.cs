@@ -6,22 +6,24 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 
+using TamanaEngine.Core;
+
 namespace TamanaEngine
 {
     public class GameObject
     {
         public string name { get; set; }
 
-        private bool isActive;
-        private List<Component> components = new List<Component>();
-        private Core.Awake awake;
-        private Core.Start start;
+        private List<ComponentMethodCaller> components = new List<ComponentMethodCaller>();
+        private bool _isActive;
+        public bool isActive { get { return _isActive; } }
 
         public GameObject()
         {
             name = "New GameObject";
 
             AddGameObjectToRuntimeUpdater();
+            SetActive(true);
         }
 
         public GameObject(string name)
@@ -29,21 +31,22 @@ namespace TamanaEngine
             this.name = name;
 
             AddGameObjectToRuntimeUpdater();
+            SetActive(true);
         }
 
         public void SetActive(bool value)
         {
-            isActive = value;
+            _isActive = value;
 
             if(value)
             {
-                start?.Invoke();
+                InvokeEveryComponentStartMethod();
             }
         }
 
         public T AddComponent<T>() where T : Component, new()
         {
-            var newComponent = components.Find(x => x is T);
+            var newComponent = components.Find(x => x.componenet is T);
             if(newComponent != null)
             {
                 return newComponent as T;
@@ -51,20 +54,26 @@ namespace TamanaEngine
 
             // Create new component and add it to components list.
             // ---------------------------------------------------
-            newComponent = new T();
-            components.Add(newComponent);
+            var component = new T();
+            SetComponentFieldGameObject(component as T);
+            component.isEnabled = true;
 
-            SetComponentFieldGameObject(newComponent as T);
-            AddUpdateAndRenderMethod(newComponent);
 
             // Get 'Awake', 'Start', 'Update', 'Render' methods.
             // -------------------------------------------------
-            awake = (Core.Awake)CreateDelegate(newComponent, typeof(Core.Awake), "Awake");
-            start = (Core.Start)CreateDelegate(newComponent, typeof(Core.Start), "Start");
+            var awake  = CreateDelegate(component as T, typeof(Awake),  "Awake")  as Awake;
+            var start  = CreateDelegate(component as T, typeof(Start),  "Start")  as Start;
+            var update = CreateDelegate(component as T, typeof(Update), "Update") as Update;
+            var render = CreateDelegate(component as T, typeof(Render), "Render") as Render;
+
+            components.Add(new ComponentMethodCaller(component, awake, start, update, render));
             
             // Invoke 'Awake' methods whenever component was added to GameObject.
             // ------------------------------------------------------------------
             awake?.Invoke();
+
+            if (_isActive)
+                start?.Invoke();
 
             return newComponent as T;
         }
@@ -76,22 +85,19 @@ namespace TamanaEngine
 
         private void AddGameObjectToRuntimeUpdater()
         {
-            Core.RuntimeUpdater.gameObjects.Add(this);
+            RuntimeUpdater.gameObjects.Add(new GameObjectAndComponents(ref components, this));
         }
 
-        private void AddUpdateAndRenderMethod(Component newComponent)
+        private void InvokeEveryComponentStartMethod()
         {
-            var update = CreateDelegate(newComponent, typeof(Core.Update), "Update");
-            if (update != null) Core.RuntimeUpdater.AddUpdateMethod(update);
-
-            var render = CreateDelegate(newComponent, typeof(Core.Render), "Render");
-            if (render != null) Core.RuntimeUpdater.AddRenderMethod(render);
+            foreach (var component in components)
+                component.start.Invoke();
         }
 
         private void SetComponentFieldGameObject(Component newComponent)
         {
-            newComponent.GetType().GetField("_gameObject",
-                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).SetValue(newComponent, this);
+            newComponent.GetType().BaseType.GetField("_gameObject",
+                BindingFlags.Instance | BindingFlags.NonPublic).SetValue(newComponent, this);
         }
 
         private Delegate CreateDelegate(Component componentInstance, Type delegateType, string methodName)

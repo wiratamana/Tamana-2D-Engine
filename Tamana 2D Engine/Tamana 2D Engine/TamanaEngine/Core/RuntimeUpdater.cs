@@ -6,36 +6,25 @@ using System.Threading.Tasks;
 
 namespace TamanaEngine.Core
 {
-    delegate void Awake();
-    delegate void Start();
-    delegate void Update();
-    delegate void Render();
+    public delegate void Awake();
+    public delegate void Start();
+    public delegate void Update();
+    public delegate void Render();
 
     public static class RuntimeUpdater
     {
-        public static List<GameObject> gameObjects { get; private set; } =  new List<GameObject>();
-        private static List<Update> updateMethods = new List<Update>();
-        private static List<Render> renderMethods = new List<Render>();
-
-        public static void AddUpdateMethod(Delegate updateMethod)
-        {
-            updateMethods.Add((Update)updateMethod);
-        }
-        public static void AddRenderMethod(Delegate renderMethod)
-        {
-            renderMethods.Add((Render)renderMethod);
-        }
+        public static List<GameObjectAndComponents> gameObjects { get; private set; } =  new List<GameObjectAndComponents>();
 
         public static void InvokeUpdateMethods()
         {
-            foreach (var update in updateMethods)
-                update.Invoke();
+             foreach (var gameObject in gameObjects)
+                gameObject.InvokeUpdate();
         }
 
         public static void InvokeRenderMethods()
         {
-            foreach (var render in renderMethods)
-                render.Invoke();
+            foreach (var gameObject in gameObjects)
+                gameObject.InvokeRender();
         }
 
     }

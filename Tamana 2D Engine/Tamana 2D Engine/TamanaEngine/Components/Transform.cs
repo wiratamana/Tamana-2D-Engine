@@ -8,6 +8,9 @@ namespace TamanaEngine
 {
     public class Transform : Component
     {
-
+        private void Update()
+        {
+            Console.WriteLine("Update");
+        }
     }
 }

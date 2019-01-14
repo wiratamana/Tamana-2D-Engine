@@ -52,6 +52,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TamanaEngine\Core\Component.cs" />
+    <Compile Include="TamanaEngine\Core\ComponentMethodCaller.cs" />
+    <Compile Include="TamanaEngine\Core\GameObjectAndComponents.cs" />
     <Compile Include="TamanaEngine\GameObject.cs" />
     <Compile Include="TamanaEngine\Core\MainWindow.cs" />
     <Compile Include="TamanaEngine\Core\Program.cs" />
