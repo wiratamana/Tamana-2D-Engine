@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GlmSharp, Version=0.9.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GlmSharp.0.9.8\lib\Net45\GlmSharp.dll</HintPath>
+    </Reference>
     <Reference Include="OpenTK, Version=3.0.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.0.1\lib\net20\OpenTK.dll</HintPath>
     </Reference>
@@ -52,15 +55,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TamanaEngine\Components\Camera.cs" />
+    <Compile Include="TamanaEngine\Components\Controller.cs" />
     <Compile Include="TamanaEngine\Components\SpriteRenderer.cs" />
     <Compile Include="TamanaEngine\Core\Component.cs" />
     <Compile Include="TamanaEngine\Core\ComponentMethodCaller.cs" />
     <Compile Include="TamanaEngine\Core\GameObjectAndComponents.cs" />
     <Compile Include="TamanaEngine\Core\LockBitmap.cs" />
-    <Compile Include="TamanaEngine\Core\Screen.cs" />
+    <Compile Include="TamanaEngine\Core\TimeMethodCaller.cs" />
+    <Compile Include="TamanaEngine\Screen.cs" />
     <Compile Include="TamanaEngine\Core\Shader.cs" />
-    <Compile Include="TamanaEngine\Core\VertexArrayObject.cs" />
-    <Compile Include="TamanaEngine\Core\VertexBufferObject.cs" />
+    <Compile Include="TamanaEngine\Time.cs" />
     <Compile Include="TamanaEngine\GameObject.cs" />
     <Compile Include="TamanaEngine\Core\MainWindow.cs" />
     <Compile Include="TamanaEngine\Core\Program.cs" />

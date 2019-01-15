@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using OpenTK;
+using GlmSharp;
 
 namespace TamanaEngine
 {
@@ -12,16 +13,15 @@ namespace TamanaEngine
     {
         private static Matrix4 projectionOrtho
         { get { return Matrix4.CreateOrthographic(Core.Screen.width, Core.Screen.height, .1f, 60f); } }
-        
+        private static Matrix4 projectionPerspective
+        { get { return Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60f), 16f / 9f, .1f, 100f); } }
+      
         private Matrix4 view;
-
-        private void Update()
-        {
-            view = Matrix4.LookAt(transform.position, transform.forward, transform.up);
-        }
 
         private void UploadMatrixMVP(Core.Shader shader, Matrix4 modelMatrix)
         {
+            view = Matrix4.LookAt(transform.position, transform.position + transform.forward, transform.up);          
+
             shader.SetMatrix4("matrixMVP", modelMatrix * view * projectionOrtho);
         }
     }

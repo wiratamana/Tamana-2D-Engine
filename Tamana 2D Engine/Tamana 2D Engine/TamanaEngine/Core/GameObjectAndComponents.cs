@@ -19,7 +19,13 @@ namespace TamanaEngine.Core
 
         public T FindComponent<T>() where T : Component
         {
-            return components.Find(x => x.componenet is T).componenet as T;
+            try
+            {
+                return components?.Find(x => x.componenet is T).componenet as T ?? null;
+            } catch
+            {
+                return null;
+            }
         }
 
         public void InvokeUpdate()

@@ -24,13 +24,47 @@ namespace TamanaEngine
             {
                 _position = value;
 
-                model = Matrix4.CreateTranslation(value);
+                model = Matrix4.Identity;
+                model *= Matrix4.CreateTranslation(value);
+                model *= Matrix4.CreateFromQuaternion(_rotation);
+                model *= Matrix4.CreateScale(scale);
+            }
+        }
+        private Quaternion _rotation;
+        public Quaternion rotation
+        {
+            get { return _rotation; }
+            set
+            {
+                _rotation = value;
+
+                model = Matrix4.Identity;
+                model *= Matrix4.CreateTranslation(position);
+                model *= Matrix4.CreateFromQuaternion(value);
+                model *= Matrix4.CreateScale(scale);
             }
         }
 
-        public Vector3 forward { get { return Vector3.Normalize((position + new Vector3(0, 0, 1)) - position); } }
-        public Vector3 right { get { return Vector3.Normalize((position + new Vector3(1, 0, 0)) - position); } }
-        public Vector3 up { get { return Vector3.Normalize((position + new Vector3(0, 1, 0)) - position); } }
+        private Vector3 _scale;
+        public Vector3 scale
+        {
+            get { return _scale; }
+            set
+            {
+                _scale = value;
+
+                model = Matrix4.Identity;
+                model *= Matrix4.CreateTranslation(position);
+                model *= Matrix4.CreateFromQuaternion(rotation);
+                model *= Matrix4.CreateScale(value);
+            }
+        }
+
+
+
+        public Vector3 forward { get { return (rotation * new Vector4(0, 0, 1f, 0)).Xyz; } }
+        public Vector3 right { get { return (rotation * new Vector4(1f, 0, 0, 0)).Xyz; } }
+        public Vector3 up { get { return (rotation * new Vector4(0, 1f, 0, 0)).Xyz; } }
 
         private Matrix4 model;
         private Matrix4 GetModelMatrix()
@@ -41,6 +75,8 @@ namespace TamanaEngine
         private void Awake()
         {
             position = Vector3.Zero;
+            rotation = Quaternion.Identity;
+            scale = Vector3.One;
         }
     }
 }

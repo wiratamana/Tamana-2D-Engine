@@ -85,7 +85,14 @@ namespace TamanaEngine
 
         public T GetComponent<T>() where T : Component
         {
-            return components.Find(x => x.componenet is T).componenet as T;
+            try
+            {
+                return components?.Find(x => x.componenet is T).componenet as T ?? null;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static T FindObjectOfType<T>() where T : Component

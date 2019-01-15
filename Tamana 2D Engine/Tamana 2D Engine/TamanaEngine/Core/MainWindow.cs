@@ -26,16 +26,22 @@ namespace TamanaEngine.Core
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
+            TimeMethodCaller.GetSetDeltaTimeDelegate();
+
 
             var mainCamera = new GameObject("MainCamera");
             mainCamera.AddComponent<Camera>();
+            mainCamera.transform.position = new Vector3(0, 0, 0);
 
             var go = new GameObject("Wira");
             go.AddComponent<Transform>();
             Console.WriteLine(go.GetComponent<Transform>().gameObject.GetType().Name);
             go.AddComponent<SpriteRenderer>();
             Console.WriteLine(go.GetComponent<SpriteRenderer>().name);
-            go.transform.position = new Vector3(0, 0, 5);
+            go.transform.position = new Vector3(0, 0, 50);
+
+            var controller = new GameObject("Controller");
+            controller.AddComponent<Controller>();
         }
 
         protected override void OnResize(EventArgs e)
@@ -50,6 +56,8 @@ namespace TamanaEngine.Core
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
+            TimeMethodCaller.InvokeSetDeltaTime((float)UpdatePeriod);
+
             RuntimeUpdater.InvokeUpdateMethods();
         }
 
