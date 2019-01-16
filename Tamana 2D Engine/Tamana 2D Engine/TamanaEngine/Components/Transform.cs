@@ -60,7 +60,15 @@ namespace TamanaEngine
             }
         }
 
-
+        private Vector3 _localPosition;
+        public Vector3 localPosition
+        {
+            get { return _localPosition; }
+            set
+            {
+                _localPosition = value;
+            }
+        }
 
         public Vector3 forward { get { return (rotation * new Vector4(0, 0, 1f, 0)).Xyz; } }
         public Vector3 right { get { return (rotation * new Vector4(1f, 0, 0, 0)).Xyz; } }
@@ -72,11 +80,38 @@ namespace TamanaEngine
             return model;
         }
 
+        private Transform _parent;
+        private Transform parent
+        {
+            get { return _parent; }
+            set
+            {
+                SetParent(value);
+            }
+        }
+
         private void Awake()
         {
             position = Vector3.Zero;
             rotation = Quaternion.Identity;
             scale = Vector3.One;
         }
+
+        /// <summary>
+        /// Unparents all children.
+        /// </summary>
+        public void DetachChildren() { throw new NotImplementedException(); }
+        public void Find(string n) { throw new NotImplementedException(); }
+        public void GetChild(int index) { throw new NotImplementedException(); }
+        public int GetSiblingIndex() { { throw new NotImplementedException(); } }
+        public bool IsChildOf(Transform parent) { throw new NotImplementedException(); }
+        public void SetAsFirstSibling() { throw new NotImplementedException(); }
+        public void SetAsLastSibling() { throw new NotImplementedException(); }
+        public void SetParent(Transform parent)
+        {
+            _parent = parent;
+        }
+        public void SetSiblingIndex(int index) { throw new NotImplementedException(); }
+
     }
 }

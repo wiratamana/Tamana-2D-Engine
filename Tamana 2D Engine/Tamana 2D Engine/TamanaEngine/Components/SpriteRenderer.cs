@@ -19,7 +19,13 @@ namespace TamanaEngine
                 if (value == null)
                     return;
 
+                if (_sprite != null)
+                    _sprite.Destroy();
+
+                _sprite = null;
+
                 _sprite = value;
+                GetEverythig();
             }
         }
 
@@ -66,11 +72,7 @@ namespace TamanaEngine
 
         private void Awake()
         {
-            GetModelMatrixDelegate();
-            GetUploadMatrixMVPDelegate();
-            GetBufferNewDataDelegate();
-
-            size = new Vector2(sprite.rect.Width, sprite.rect.Height);
+            GetEverythig();
         }
 
         private void Render()
@@ -80,6 +82,15 @@ namespace TamanaEngine
             shader.UseProgram();
             uploadMatrixMVP.Invoke(shader, model.Invoke());
             sprite.RenderSprite();
+        }
+
+        private void GetEverythig()
+        {
+            GetModelMatrixDelegate();
+            GetUploadMatrixMVPDelegate();
+            GetBufferNewDataDelegate();
+
+            size = new Vector2(sprite.rect.Width, sprite.rect.Height);
         }
 
         private void GetModelMatrixDelegate()

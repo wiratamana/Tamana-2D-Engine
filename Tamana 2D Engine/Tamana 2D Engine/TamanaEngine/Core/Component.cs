@@ -38,9 +38,19 @@ namespace TamanaEngine
             var componentList = gameObject.GetType().GetField("components", System.Reflection.BindingFlags.Instance |
                 System.Reflection.BindingFlags.NonPublic).GetValue(gameObject) as List<Core.ComponentMethodCaller>;
 
-            var myComponent = componentList.Find(x => x.componenet == this);
+            var myComponent = componentList.Find(x => x.component == this);
             if (myComponent != null)
                 start = myComponent.start;
+        }
+
+        public T AddComponent<T>() where T : Component, new()
+        {
+            return gameObject.AddComponent<T>();
+        }
+
+        public T GetComponent<T>() where T : Component
+        {
+            return gameObject.GetComponent<T>();
         }
     }
 }

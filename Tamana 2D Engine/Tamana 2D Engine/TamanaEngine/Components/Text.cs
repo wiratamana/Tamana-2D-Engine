@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TamanaEngine
 {
-    public class Text : Component
+    public class Text : ComponentUI
     {
         private Sprite graphicString;
 
@@ -80,13 +80,13 @@ namespace TamanaEngine
 
             GetModelMatrixDelegate();
             GetUploadMatrixMVPDelegate();
-            GetBufferNewDataDelegate();
+            GetBufferNewDataDelegate(); 
         }
 
         private void Render()
         {
             graphicString.BindTexture();
-
+            
             shader.UseProgram();
             uploadMatrixMVP.Invoke(shader, model.Invoke());
             graphicString.RenderSprite();

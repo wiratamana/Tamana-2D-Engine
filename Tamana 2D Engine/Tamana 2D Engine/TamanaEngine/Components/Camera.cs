@@ -11,7 +11,7 @@ namespace TamanaEngine
     public class Camera : Component
     {
         private static Matrix4 projectionOrtho
-        { get { return Matrix4.CreateOrthographic(Core.Screen.width, Core.Screen.height, .1f, 60f); } }
+        { get { return Matrix4.CreateOrthographic(Screen.width, Screen.height, .1f, 60f); } }
         private static Matrix4 projectionPerspective
         { get { return Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60f), 16f / 9f, .1f, 100f); } }
       

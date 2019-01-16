@@ -13,7 +13,7 @@ namespace TamanaEngine.Core
 
     public static class RuntimeUpdater
     {
-        public static List<GameObjectAndComponents> gameObjects { get; private set; } =  new List<GameObjectAndComponents>();
+        private static List<GameObjectAndComponents> gameObjects { get; set; } =  new List<GameObjectAndComponents>();
 
         public static void InvokeUpdateMethods()
         {
@@ -25,7 +25,26 @@ namespace TamanaEngine.Core
         {
             foreach (var gameObject in gameObjects)
                 gameObject.InvokeRender();
+
+            foreach (var gameoObject in gameObjects)
+                gameoObject.InvokeRenderUI();
         }
 
+        public static void AddGameObject(GameObjectAndComponents gameObjectAndComponents)
+        {
+            gameObjects.Add(gameObjectAndComponents);
+        }
+
+        public static T FindObjectOfType<T>() where T : Component
+        {
+            foreach (var go in gameObjects)
+            {
+                var component = go.FindComponent<T>();
+                if (component != null)
+                    return component;
+            }
+
+            return null;
+        }
     }
 }

@@ -21,6 +21,8 @@ namespace TamanaEngine
         private bool _isActive;
         public bool isActive { get { return _isActive; } }
 
+        private Core.OnAddedComponent onAddedComponent;
+
         public GameObject()
         {
             name = "New GameObject";
@@ -51,10 +53,10 @@ namespace TamanaEngine
 
         public T AddComponent<T>() where T : Component, new()
         {
-            var newComponent = components.Find(x => x.componenet is T);
+            var newComponent = components.Find(x => x.component is T);
             if(newComponent != null)
             {
-                return newComponent.componenet as T;
+                return newComponent.component as T;
             }
 
             // Create new component and add it to components list.
@@ -62,7 +64,6 @@ namespace TamanaEngine
             var component = new T();
             SetComponentFieldGameObject(component as T);
             component.isEnabled = true;
-
 
             // Get 'Awake', 'Start', 'Update', 'Render' methods.
             // -------------------------------------------------
@@ -80,6 +81,8 @@ namespace TamanaEngine
             if (_isActive)
                 start?.Invoke();
 
+            onAddedComponent?.Invoke();
+
             return component as T;
         }
 
@@ -87,7 +90,7 @@ namespace TamanaEngine
         {
             try
             {
-                return components?.Find(x => x.componenet is T).componenet as T ?? null;
+                return components?.Find(x => x.component is T).component as T ?? null;
             }
             catch
             {
@@ -97,19 +100,20 @@ namespace TamanaEngine
 
         public static T FindObjectOfType<T>() where T : Component
         {
-            foreach(var go in RuntimeUpdater.gameObjects)
-            {
-                var component = go.FindComponent<T>();
-                if (component != null)
-                    return component;
-            }
-
-            return null;
+            return RuntimeUpdater.FindObjectOfType<T>();
         }
 
         private void AddGameObjectToRuntimeUpdater()
         {
-            RuntimeUpdater.gameObjects.Add(new GameObjectAndComponents(ref components, this));
+            var gameObjectAndComponents = new GameObjectAndComponents(ref components, this);
+            RuntimeUpdater.AddGameObject(gameObjectAndComponents);
+
+            onAddedComponent = gameObjectAndComponents.GetType().GetMethod("ReorderRender",
+                BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate
+                (typeof(OnAddedComponent), gameObjectAndComponents) as OnAddedComponent;
+
+            if (onAddedComponent == null)
+                throw new Exception("Failed to add method with reflection.");
         }
 
         private void AddTransformComponent()
@@ -125,7 +129,11 @@ namespace TamanaEngine
 
         private void SetComponentFieldGameObject(Component newComponent)
         {
-            newComponent.GetType().BaseType.GetField("_gameObject",
+            Type baseType = newComponent.GetType().BaseType;
+            if (newComponent is ComponentUI)
+                baseType = baseType.BaseType;
+
+            baseType.GetField("_gameObject",
                 BindingFlags.Instance | BindingFlags.NonPublic).SetValue(newComponent, this);
         }
 
