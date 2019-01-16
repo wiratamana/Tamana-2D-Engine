@@ -54,8 +54,10 @@
     <Compile Include="TamanaEngine\Components\Camera.cs" />
     <Compile Include="TamanaEngine\Components\Controller.cs" />
     <Compile Include="TamanaEngine\Components\SpriteRenderer.cs" />
+    <Compile Include="TamanaEngine\Components\Text.cs" />
     <Compile Include="TamanaEngine\Core\Component.cs" />
     <Compile Include="TamanaEngine\Core\ComponentMethodCaller.cs" />
+    <Compile Include="TamanaEngine\Core\DefaultFont.cs" />
     <Compile Include="TamanaEngine\Core\GameObjectAndComponents.cs" />
     <Compile Include="TamanaEngine\Core\LockBitmap.cs" />
     <Compile Include="TamanaEngine\Core\TimeMethodCaller.cs" />

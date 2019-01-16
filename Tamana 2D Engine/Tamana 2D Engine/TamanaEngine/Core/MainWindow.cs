@@ -27,7 +27,7 @@ namespace TamanaEngine.Core
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             TimeMethodCaller.GetSetDeltaTimeDelegate();
-
+            DefaultFont.InitFont();
 
             var mainCamera = new GameObject("MainCamera");
             mainCamera.AddComponent<Camera>();
@@ -36,8 +36,9 @@ namespace TamanaEngine.Core
             var go = new GameObject("Wira");
             go.AddComponent<Transform>();
             Console.WriteLine(go.GetComponent<Transform>().gameObject.GetType().Name);
-            go.AddComponent<SpriteRenderer>();
-            Console.WriteLine(go.GetComponent<SpriteRenderer>().name);
+            go.AddComponent<Text>().text = "Wiratamana";
+            //go.AddComponent<SpriteRenderer>();
+            Console.WriteLine(go.GetComponent<Text>().name);
             go.transform.position = new Vector3(0, 0, 50);
 
             var controller = new GameObject("Controller");
@@ -61,6 +62,7 @@ namespace TamanaEngine.Core
             RuntimeUpdater.InvokeUpdateMethods();
         }
 
+        float second;
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             Title = $"(Vsync: {VSync}) FPS: {1f / e.Time:0}";
@@ -72,6 +74,9 @@ namespace TamanaEngine.Core
             backColor.B = 0.3f;
             GL.ClearColor(backColor);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            second += Time.deltaTime;
+            GameObject.FindObjectOfType<Text>().text = second.ToString();
 
             RuntimeUpdater.InvokeRenderMethods();
 
