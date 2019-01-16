@@ -24,8 +24,8 @@ namespace TamanaEngine
 
             time += 90 * Time.deltaTime;
 
-            GameObject.FindObjectOfType<SpriteRenderer>().transform.rotation = OpenTK.Quaternion.FromEulerAngles(new OpenTK.Vector3(0, 0,
-                OpenTK.MathHelper.DegreesToRadians(time)));
+            //GameObject.FindObjectOfType<SpriteRenderer>().transform.rotation = OpenTK.Quaternion.FromEulerAngles(new OpenTK.Vector3(0, 0,
+            //    OpenTK.MathHelper.DegreesToRadians(time)));
         }
 
         private void CameraController()

@@ -13,7 +13,7 @@ namespace TamanaEngine.Core
     public class LockBitmap
     {
         Bitmap source = null;
-        IntPtr Iptr = IntPtr.Zero;
+        public IntPtr Iptr { private set; get; } = IntPtr.Zero;
         BitmapData bitmapData = null;
 
         public byte[] Pixels { get; set; }
@@ -153,13 +153,13 @@ namespace TamanaEngine.Core
                 Pixels[i + 2] = color.R;
                 Pixels[i + 3] = color.A;
             }
-            if (Depth == 24) // For 24 bpp set Red, Green and Blue
+            else if (Depth == 24) // For 24 bpp set Red, Green and Blue
             {
                 Pixels[i] = color.B;
                 Pixels[i + 1] = color.G;
                 Pixels[i + 2] = color.R;
             }
-            if (Depth == 8)
+            else if (Depth == 8)
             // For 8 bpp set color value (Red, Green and Blue values are the same)
             {
                 Pixels[i] = color.B;

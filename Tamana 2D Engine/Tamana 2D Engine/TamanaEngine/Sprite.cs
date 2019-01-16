@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.IO;
 
 using OpenTK.Graphics.OpenGL;
@@ -51,6 +52,33 @@ namespace TamanaEngine
             GenerateObject();
             LoadTexture(path);
         }
+
+        public Sprite(Bitmap bitmap)
+        {
+            myVertices = vertices;
+            GenerateObject();
+
+            rect = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
+
+            GL.GenTextures(1, out id);
+            GL.BindTexture(TextureTarget.Texture2D, id);
+
+            BitmapData data = bitmap.LockBits(
+                 new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                 ImageLockMode.ReadOnly,
+                 System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.Width, data.Height, 0,
+                OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+
+            bitmap.UnlockBits(data);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+        }          
 
         public void BindTexture()
         {
@@ -132,11 +160,11 @@ namespace TamanaEngine
 
         private Bitmap CreateBitmap()
         {
-            Bitmap bmp = new Bitmap(64, 64);
-            Core.LockBitmap lockBitmap = new Core.LockBitmap(bmp);
+            Bitmap bmp = new Bitmap(100, 100);            
+            Core.LockBitmap lockBitmap = new Core.LockBitmap(bmp);            
             lockBitmap.LockBits();
-            for(int x = 0; x < 64; x++)
-                for(int y = 0; y < 64; y++)
+            for(int x = 0; x < bmp.Width; x++)
+                for(int y = 0; y < bmp.Height; y++)
                 {
                     lockBitmap.SetPixel(x, y, Color.White);
                 }
@@ -146,6 +174,15 @@ namespace TamanaEngine
             bmp.RotateFlip(RotateFlipType.Rotate180FlipNone);
 
             return bmp;
+        }
+
+        public void Destroy()
+        {
+            GL.DeleteBuffer(VBO);
+            GL.DeleteTexture(id);
+            GL.DeleteVertexArray(VAO);
+
+            myVertices = null;
         }
     }
 }
