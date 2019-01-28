@@ -4,16 +4,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
+
 namespace TamanaEngine
 {
     public class Text : ComponentUI
     {
-        private Sprite graphicString;
-
         private Core.GetModelMatrix model;
         private Core.UploadMatrixMVP uploadMatrixMVP;
-        private Core.BufferNewData bufferNewData;
+        private Core.BindTexture bindTexture;
         private Core.Shader shader;
+
+        private Texture2D textTexture;
+
+        private float[] vertices =
+            {
+                      .5f,  .5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
+                      .5f, -.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // bottom right
+                     -.5f, -.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
+                      
+                      .5f,  .5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
+                     -.5f, -.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
+                     -.5f,  .5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // top left 
+            };
+        private Vector2 size;
 
         private string _text;
         public string text
@@ -25,71 +40,91 @@ namespace TamanaEngine
                 if (string.IsNullOrEmpty(value))
                     return;
 
-                var chars = new System.Drawing.Bitmap[value.Length];
+                var chars = new Texture2D[value.Length];
                 for (int i = 0; i < value.Length; i ++)
-                    chars[i] = Core.DefaultFont.GetVertexDataFromChar(value[i]);
+                    chars[i] = Core.DefaultFont.GetTexture2DFromChar(value[i]);
 
-                var bigBitmap = new System.Drawing.Bitmap(chars.Length * chars[0].Width, chars[0].Height);
-                var lockBitmap = new Core.LockBitmap(bigBitmap);
-                lockBitmap.LockBits();
+                if (textTexture != null)
+                    textTexture.Dispose();
+                textTexture = new Texture2D(chars.Length * chars[0].width, chars[0].height);
+
                 var offsetX = 0;
-                for (int i = 0; i < value.Length; i ++)
+                for (int i = value.Length - 1; i >= 0; i --)
                 {
-                    var lockBitmapChar = new Core.LockBitmap(chars[i]);
-                    lockBitmapChar.LockBits();
-
-                    for (int x = 0; x < chars[0].Width; x++)
-                        for(int y = 0; y < chars[0].Height; y++)
+                    for (int x = 0; x < chars[0].width; x++)
+                        for(int y = 0; y < chars[0].height; y++)
                         {
-                            lockBitmap.SetPixel(offsetX + x, y, lockBitmapChar.GetPixel(x, y));
+                            textTexture.SetPixel(offsetX + x, y, chars[i].GetPixel(x, y));
                         }
-
-                    lockBitmapChar.UnlockBits();
-                    offsetX += chars[0].Width;
+                    offsetX += chars[0].width;
                 }
 
-                lockBitmap.UnlockBits();
-                bigBitmap.RotateFlip(System.Drawing.RotateFlipType.Rotate180FlipNone);
+                textTexture.Apply();
 
-                graphicString?.Destroy();
-                graphicString = new Sprite(bigBitmap);
-                GetBufferNewDataDelegate();
+                var sizeX = textTexture.width / 2f;
+                var sizeY = textTexture.height / 2f;
 
-                var sizeX = bigBitmap.Width / 2f;
-                var sizeY = bigBitmap.Height / 2f;
+                size = new Vector2(sizeX, sizeY);
 
-                float[] vertices =
-                {
-                      sizeX,  sizeY,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
-                      sizeX, -sizeY,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // bottom right
-                     -sizeX, -sizeY,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
-                              
-                      sizeX,  sizeY,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
-                     -sizeX, -sizeY,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
-                     -sizeX,  sizeY,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // top left 
-                 };
-
-                bufferNewData.Invoke(vertices);
+                UploadNewVerticesToGPU();
+                GetBindTextureDelegate();
             }
         }
 
+        private System.Drawing.Color _color;
+        public System.Drawing.Color color
+        {
+            get { return _color; }
+            set
+            {
+                _color = value;
+                UploadNewVerticesToGPU();
+            }
+        }
+
+        private int VBO;
+        private int VAO;
+
         private void Awake()
         {
-            graphicString = new Sprite();
+
             shader = new Core.Shader("./res/SpriteRendererVertex.txt", "./res/SpriteRendererFragment.txt");
 
             GetModelMatrixDelegate();
             GetUploadMatrixMVPDelegate();
-            GetBufferNewDataDelegate(); 
+            GenerateBuffer();
+
+            color = System.Drawing.Color.Red;
         }
 
         private void Render()
         {
-            graphicString.BindTexture();
-            
+            bindTexture?.Invoke();
+
             shader.UseProgram();
             uploadMatrixMVP.Invoke(shader, model.Invoke());
-            graphicString.RenderSprite();
+
+            GL.BindVertexArray(VAO);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, vertices.Length);
+        }
+
+        private void UploadNewVerticesToGPU()
+        {
+            float[] newVertices =
+                {
+                      size.X,  size.Y,   _color.R/255f, _color.G, _color.B,   1.0f, 1.0f, // top right
+                      size.X, -size.Y,   _color.R/255f, _color.G, _color.B,   1.0f, 0.0f, // bottom right
+                     -size.X, -size.Y,   _color.R/255f, _color.G, _color.B,   0.0f, 0.0f, // bottom left
+                              
+                      size.X,  size.Y,   _color.R/255f, _color.G, _color.B,   1.0f, 1.0f, // top right
+                     -size.X, -size.Y,   _color.R/255f, _color.G, _color.B,   0.0f, 0.0f, // bottom left
+                     -size.X,  size.Y,   _color.R/255f, _color.G, _color.B,   0.0f, 1.0f  // top left 
+                 };
+
+            vertices = newVertices;
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.StaticDraw);
         }
 
         private void GetModelMatrixDelegate()
@@ -138,14 +173,14 @@ namespace TamanaEngine
             uploadMatrixMVP = method.CreateDelegate(typeof(Core.UploadMatrixMVP), mainCamera) as Core.UploadMatrixMVP;
         }
 
-        private void GetBufferNewDataDelegate()
+        private void GetBindTextureDelegate()
         {
-            var method = graphicString.GetType().GetMethod("BufferNewData",
+            var method = textTexture.GetType().GetMethod("BindTexture",
                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
             if (method == null)
             {
-                var methods = graphicString.GetType().GetMethods(
+                var methods = textTexture.GetType().GetMethods(
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
                 string foundedMethods = string.Empty;
@@ -156,7 +191,32 @@ namespace TamanaEngine
                 throw new NullReferenceException("\nCannot find method 'BufferNewData'. Founded methood : \n" + foundedMethods);
             }
 
-            bufferNewData = method.CreateDelegate(typeof(Core.BufferNewData), graphicString) as Core.BufferNewData;
+            bindTexture = method.CreateDelegate(typeof(Core.BindTexture), textTexture) as Core.BindTexture;
+        }
+
+        private void GenerateBuffer()
+        {
+            GL.GenBuffers(1, out VBO);
+            GL.GenVertexArrays(1, out VAO);
+
+            GL.BindVertexArray(VAO);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.StaticDraw);
+
+            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, sizeof(float) * 7, 0 * sizeof(float));
+            GL.EnableVertexAttribArray(0);
+
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, sizeof(float) * 7, 2 * sizeof(float));
+            GL.EnableVertexAttribArray(1);
+
+            GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, sizeof(float) * 7, 5 * sizeof(float));
+            GL.EnableVertexAttribArray(2);
+        }
+
+        protected override void DestroyComponent()
+        {
+            throw new NotImplementedException();
         }
     }
 }

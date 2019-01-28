@@ -26,6 +26,7 @@ namespace TamanaEngine.Core
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
+            FileManager.CopyShadersToGameDirectory();
             TimeMethodCaller.GetSetDeltaTimeDelegate();
             DefaultFont.InitFont();
 
@@ -37,15 +38,15 @@ namespace TamanaEngine.Core
             mainCamera.transform.position = new Vector3(0, 0, 0);
 
             var go = new GameObject("Wira");
-            go.AddComponent<Transform>();
-            Console.WriteLine(go.GetComponent<Transform>().gameObject.GetType().Name);
-            go.AddComponent<Text>().text = "Wiratamana";
-            //go.AddComponent<SpriteRenderer>();            
+            
+            go.AddComponent<Text>().text = "Wiratamana";            
             go.transform.position = new Vector3(0, 0, 50);
+            go.GetComponent<Text>().color = System.Drawing.Color.HotPink;
 
             var image = new GameObject("image");
-            go.AddComponent<SpriteRenderer>();
-            go.GetComponent<SpriteRenderer>().sprite = new Sprite("./res/sprite.png");
+            image.AddComponent<SpriteRenderer>();
+            image.transform.position = new Vector3(0, 0, 50);
+            //image.GetComponent<SpriteRenderer>().sprite = new Sprite("./res/sprite.png");
 
             sw.Stop();
             Console.WriteLine("Load time : " + sw.ElapsedMilliseconds + "ms.");
@@ -62,14 +63,14 @@ namespace TamanaEngine.Core
 
         protected override void OnLoad(EventArgs e)
         {
-            CursorVisible = true;
+            CursorVisible = true;            
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             TimeMethodCaller.InvokeSetDeltaTime((float)UpdatePeriod);
 
-            RuntimeUpdater.InvokeUpdateMethods();
+            RuntimeUpdater.InvokeUpdateMethods();            
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)

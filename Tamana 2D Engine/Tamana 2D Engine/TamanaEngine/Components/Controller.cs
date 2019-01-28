@@ -20,12 +20,27 @@ namespace TamanaEngine
 
         private void Update()
         {
-            CameraController();
+            //CameraController();
 
-            time += 90 * Time.deltaTime;
+            if (Input.GetKey(Key.Left))
+            {
+                time += 90 * Time.deltaTime;
 
-            //GameObject.FindObjectOfType<SpriteRenderer>().transform.rotation = OpenTK.Quaternion.FromEulerAngles(new OpenTK.Vector3(0, 0,
-            //    OpenTK.MathHelper.DegreesToRadians(time)));
+                GameObject.FindObjectOfType<SpriteRenderer>().transform.rotation = OpenTK.Quaternion.FromEulerAngles(new OpenTK.Vector3(0, 0,
+                    OpenTK.MathHelper.DegreesToRadians(time)));
+
+                Texture2D wira = new Texture2D(100, 100);
+                for(int i = 0; i < 100; i ++)
+                    for(int j = 0; j < 100; j++)
+                    {
+                        wira.SetPixel(i, j, System.Drawing.Color.Aqua);
+                    }
+
+                wira.Apply();
+
+                GameObject.FindObjectOfType<SpriteRenderer>().sprite = new Sprite(wira);
+            }
+
         }
 
         private void CameraController()
@@ -37,6 +52,11 @@ namespace TamanaEngine
 
             if (key.IsKeyDown(Key.Right))
                 cameraTransform.position += new OpenTK.Vector3(-50f * Time.deltaTime,0,0);
+        }
+
+        protected override void DestroyComponent()
+        {
+            throw new NotImplementedException();
         }
     }
 }

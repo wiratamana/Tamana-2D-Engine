@@ -43,6 +43,8 @@ namespace TamanaEngine
                 start = myComponent.start;
         }
 
+        protected abstract void DestroyComponent();
+
         public T AddComponent<T>() where T : Component, new()
         {
             return gameObject.AddComponent<T>();

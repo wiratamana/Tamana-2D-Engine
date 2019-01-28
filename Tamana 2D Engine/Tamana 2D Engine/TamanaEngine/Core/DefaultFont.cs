@@ -12,15 +12,15 @@ namespace TamanaEngine.Core
 {
     public class DefaultFont
     {
-        private static Dictionary<char, Bitmap> characters = new Dictionary<char, Bitmap>();
+        private static Dictionary<char, Texture2D> characters = new Dictionary<char, Texture2D>();
 
         private static class Settings
         {
             public static string FontBitmapFilename = "test.png";
             public static int GlyphsPerLine = 16;
             public static int GlyphLineCount = 16;
-            public static int GlyphWidth = 22;
-            public static int GlyphHeight = 44;
+            public static int GlyphWidth { get { return (int)(FontSize * 1.35f); } }
+            public static int GlyphHeight { get { return GlyphWidth * 2; } }
 
             public static int CharXSpacing = 22;
 
@@ -28,7 +28,7 @@ namespace TamanaEngine.Core
 
             // Used to offset rendering glyphs to bitmap
             public static float AtlasOffsetX = -5.5f, AtlassOffsetY = -2;
-            public static int FontSize = 28;
+            public static int FontSize = 14;
             public static bool BitmapFont = false;
             public static string FromFile; //= "joystix monospace.ttf";
             public static string FontName = "Consolas";
@@ -40,7 +40,6 @@ namespace TamanaEngine.Core
             int bitmapWidth = Settings.GlyphsPerLine * Settings.GlyphWidth;
             int bitmapHeight = Settings.GlyphLineCount * Settings.GlyphHeight;
 
-
             for (int p = 0; p < Settings.GlyphLineCount; p++)
             {
                 for (int n = 0; n < Settings.GlyphsPerLine; n++)
@@ -48,7 +47,7 @@ namespace TamanaEngine.Core
                     var bitmap = new Bitmap(Settings.GlyphWidth, Settings.GlyphHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
                     Font font;
-                    if (!String.IsNullOrWhiteSpace(Settings.FromFile))
+                    if (!string.IsNullOrWhiteSpace(Settings.FromFile))
                     {
                         var collection = new PrivateFontCollection();
                         collection.AddFontFile(Settings.FromFile);                        
@@ -72,20 +71,28 @@ namespace TamanaEngine.Core
                     {
                         g.SmoothingMode = SmoothingMode.HighQuality;
                         g.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-                        //g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
                     }
 
                     char c = (char)(n + p * Settings.GlyphsPerLine);
-                    //g.DrawString(c.ToString(), font, Brushes.Black,
-                    //    n * Settings.GlyphWidth + Settings.AtlasOffsetX, p * Settings.GlyphHeight + Settings.AtlassOffsetY);
-                    g.DrawString(c.ToString(), font, Brushes.Red, Settings.AtlasOffsetX, Settings.AtlassOffsetY);
 
-                    characters.Add(c, bitmap);
+                    g.DrawString(c.ToString(), font, Brushes.White, Settings.AtlasOffsetX, Settings.AtlassOffsetY);
+                    bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
+
+                    var texture = new Texture2D(Settings.GlyphWidth, Settings.GlyphHeight);
+                    for(int x = 0; x < texture.width; x++)
+                        for(int y = 0; y < texture.height; y++)
+                        {
+                            texture.SetPixel(x, y, bitmap.GetPixel(x, y));
+                        }
+
+                    texture.Apply();
+                    
+                    characters.Add(c, texture);
                 }
             }
         }
 
-        public static Bitmap GetVertexDataFromChar(char c)
+        public static Texture2D GetTexture2DFromChar(char c)
         {
             return characters[c];
         }

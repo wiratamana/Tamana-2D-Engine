@@ -89,6 +89,12 @@ namespace TamanaEngine.Core
             }
         }
 
+        public void CopyToPointer()
+        {
+            // Copy data from byte array to pointer
+            Marshal.Copy(Pixels, 0, Iptr, Pixels.Length);
+        }
+
         /// <summary>
         /// Get the color of the specified pixel
         /// </summary>

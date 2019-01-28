@@ -44,7 +44,7 @@ namespace TamanaEngine.Core
 
             GL.LinkProgram(program);
             if (!string.IsNullOrEmpty(GL.GetProgramInfoLog(program)))
-                throw new Exception("Failed to link program");
+                throw new Exception("Failed to link program. \nReason : \n" + GL.GetProgramInfoLog(program));
 
             GL.DeleteShader(vertexShader);
             GL.DeleteShader(fragmentShader);
@@ -58,6 +58,11 @@ namespace TamanaEngine.Core
         public void SetMatrix4(string uniformName, OpenTK.Matrix4 matrix4)
         {
             GL.UniformMatrix4(GL.GetUniformLocation(program, uniformName), false, ref matrix4);
+        }
+
+        public void SetInt(string uniformName, int value)
+        {
+            GL.Uniform1(GL.GetUniformLocation(program, uniformName), value);
         }
     }
 }

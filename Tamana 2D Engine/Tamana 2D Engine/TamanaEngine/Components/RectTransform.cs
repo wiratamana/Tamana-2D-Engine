@@ -19,5 +19,10 @@ namespace TamanaEngine
                 _sizeDelta = value;
             }
         }
+
+        protected override void DestroyComponent()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

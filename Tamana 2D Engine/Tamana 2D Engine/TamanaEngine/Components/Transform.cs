@@ -113,5 +113,9 @@ namespace TamanaEngine
         }
         public void SetSiblingIndex(int index) { throw new NotImplementedException(); }
 
+        protected override void DestroyComponent()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

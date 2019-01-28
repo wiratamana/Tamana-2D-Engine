@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 
 namespace TamanaEngine
 {
@@ -19,10 +20,7 @@ namespace TamanaEngine
                 if (value == null)
                     return;
 
-                if (_sprite != null)
-                    _sprite.Destroy();
-
-                _sprite = null;
+                _sprite.Dispose();
 
                 _sprite = value;
                 GetEverythig();
@@ -43,6 +41,7 @@ namespace TamanaEngine
 
                 value.X /= 2f;
                 value.Y /= 2f;
+                _size = value;
 
                  float[] vertices =
                  {
@@ -55,42 +54,87 @@ namespace TamanaEngine
                      -value.X,  value.Y,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // top left 
                  };
 
-                bufferNewData.Invoke(vertices);
+                myVertices = vertices;
+
+                GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+                GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * myVertices.Length, myVertices, BufferUsageHint.StaticDraw);
             }
         }
 
         private Core.GetModelMatrix model;
         private Core.UploadMatrixMVP uploadMatrixMVP;
-        private Core.BufferNewData bufferNewData;
+        private Core.BindTexture bindTexture;
         private Core.Shader shader;
 
-        public SpriteRenderer()
+        private int VBO;
+        private int VAO;
+
+        private static readonly float[] vertices =
         {
-            shader = new Core.Shader("./res/SpriteRendererVertex.txt", "./res/SpriteRendererFragment.txt");
-            _sprite = new Sprite("./res/sprite.png");
-        }
+             100.5f,  100.5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
+             100.5f, -100.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // bottom right
+            -100.5f, -100.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
+                      
+             100.5f,  100.5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
+            -100.5f, -100.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
+            -100.5f,  100.5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // top left 
+        };
+
+        private float[] myVertices;
 
         private void Awake()
         {
+            myVertices = vertices;
+
+            shader = new Core.Shader("./res/SpriteRendererVertex.txt", "./res/SpriteRendererFragment.txt");
+            _sprite = new Sprite("./res/sprite.png");            
+
             GetEverythig();
+            GenerateBuffer();
+
+            myVertices = vertices;
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * myVertices.Length, myVertices, BufferUsageHint.StaticDraw);
         }
 
         private void Render()
         {
-            sprite.BindTexture();
+            bindTexture.Invoke();
 
             shader.UseProgram();
             uploadMatrixMVP.Invoke(shader, model.Invoke());
-            sprite.RenderSprite();
+
+            GL.BindVertexArray(VAO);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, myVertices.Length);
         }
 
         private void GetEverythig()
         {
             GetModelMatrixDelegate();
             GetUploadMatrixMVPDelegate();
-            GetBufferNewDataDelegate();
+            GetBindTextureDelegate();
 
             size = new Vector2(sprite.rect.Width, sprite.rect.Height);
+        }
+
+        private void GenerateBuffer()
+        {
+            GL.GenBuffers(1, out VBO);
+            GL.GenVertexArrays(1, out VAO);
+
+            GL.BindVertexArray(VAO);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * myVertices.Length, myVertices, BufferUsageHint.StaticDraw);
+
+            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, sizeof(float) * 7, 0 * sizeof(float));
+            GL.EnableVertexAttribArray(0);
+
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, sizeof(float) * 7, 2 * sizeof(float));
+            GL.EnableVertexAttribArray(1);
+
+            GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, sizeof(float) * 7, 5 * sizeof(float));
+            GL.EnableVertexAttribArray(2);
         }
 
         private void GetModelMatrixDelegate()
@@ -139,14 +183,14 @@ namespace TamanaEngine
             uploadMatrixMVP = method.CreateDelegate(typeof(Core.UploadMatrixMVP), mainCamera) as Core.UploadMatrixMVP;
         }
 
-        private void GetBufferNewDataDelegate()
+        private void GetBindTextureDelegate()
         {
-            var method = sprite.GetType().GetMethod("BufferNewData",
+            var method = sprite.texture.GetType().GetMethod("BindTexture",
                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
             if (method == null)
             {
-                var methods = method.GetType().GetMethods(
+                var methods = sprite.texture.GetType().GetMethods(
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
                 string foundedMethods = string.Empty;
@@ -157,7 +201,12 @@ namespace TamanaEngine
                 throw new NullReferenceException("\nCannot find method 'BufferNewData'. Founded methood : \n" + foundedMethods);
             }
 
-            bufferNewData = method.CreateDelegate(typeof(Core.BufferNewData), sprite) as Core.BufferNewData;
+            bindTexture = method.CreateDelegate(typeof(Core.BindTexture), sprite.texture) as Core.BindTexture;
+        }
+
+        protected override void DestroyComponent()
+        {
+            throw new NotImplementedException();
         }
     }
 }

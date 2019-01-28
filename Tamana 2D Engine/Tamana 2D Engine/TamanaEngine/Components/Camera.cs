@@ -23,5 +23,10 @@ namespace TamanaEngine
 
             shader.SetMatrix4("matrixMVP", modelMatrix * view * projectionOrtho);
         }
+
+        protected override void DestroyComponent()
+        {
+            
+        }
     }
 }

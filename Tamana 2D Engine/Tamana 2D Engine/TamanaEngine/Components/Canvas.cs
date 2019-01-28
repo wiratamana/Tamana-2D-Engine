@@ -13,6 +13,11 @@ namespace TamanaEngine
         private Rectangle _rect;
         public Rectangle rect { get { return _rect; } }
 
+        protected override void DestroyComponent()
+        {
+            throw new NotImplementedException();
+        }
+
         private void Awake()
         {
             _rect = new Rectangle(0, 0, Screen.width, Screen.height);
