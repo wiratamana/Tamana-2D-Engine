@@ -81,7 +81,7 @@ namespace TamanaEngine
         }
 
         private Transform _parent;
-        private Transform parent
+        public Transform parent
         {
             get { return _parent; }
             set
