@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 
 namespace TamanaEngine.Core
 {
@@ -23,6 +24,9 @@ namespace TamanaEngine.Core
         0, // OpenGL minor version
         GraphicsContextFlags.ForwardCompatible)
         {
+            Mouse.SetPosition(1920 / 2, 1080/2);
+            
+
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 

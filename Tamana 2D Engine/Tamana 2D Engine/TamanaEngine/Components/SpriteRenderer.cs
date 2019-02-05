@@ -20,10 +20,9 @@ namespace TamanaEngine
                 if (value == null)
                     return;
 
-                _sprite.Dispose();
-
+                _sprite.texture.Dispose();
                 _sprite = value;
-                GetEverythig();
+                GetBindTextureDelegate();
             }
         }
 
@@ -43,21 +42,32 @@ namespace TamanaEngine
                 value.Y /= 2f;
                 _size = value;
 
-                 float[] vertices =
-                 {
-                      value.X,  value.Y,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
-                      value.X, -value.Y,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // bottom right
-                     -value.X, -value.Y,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
-                      
-                      value.X,  value.Y,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
-                     -value.X, -value.Y,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
-                     -value.X,  value.Y,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // top left 
-                 };
 
-                myVertices = vertices;
+                myVertices[0] = value.X;
+                myVertices[1] = value.Y;
+
+                myVertices[7] = value.X;
+                myVertices[8] = -value.Y;
+
+                myVertices[14] = -value.X;
+                myVertices[15] = -value.Y;
+
+                myVertices[21] = value.X;
+                myVertices[22] = value.Y;
+
+                myVertices[28] = -value.X;
+                myVertices[29] = -value.Y;
+
+                myVertices[35] = -value.X;
+                myVertices[36] = value.Y;
+
+                IntPtr vertPtr = System.Runtime.InteropServices.Marshal.AllocHGlobal(myVertices.Length * sizeof(float));
+                System.Runtime.InteropServices.Marshal.Copy(myVertices, 0, vertPtr, myVertices.Length);
 
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-                GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * myVertices.Length, myVertices, BufferUsageHint.StaticDraw);
+                GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * myVertices.Length, vertPtr, BufferUsageHint.StaticDraw);
+
+                System.Runtime.InteropServices.Marshal.FreeHGlobal(vertPtr);
             }
         }
 
@@ -89,12 +99,10 @@ namespace TamanaEngine
             shader = new Core.Shader("./res/SpriteRendererVertex.txt", "./res/SpriteRendererFragment.txt");
             _sprite = new Sprite("./res/sprite.png");            
 
-            GetEverythig();
+            GetEverything();
             GenerateBuffer();
 
-            myVertices = vertices;
-            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * myVertices.Length, myVertices, BufferUsageHint.StaticDraw);
+            size = new Vector2(sprite.rect.Width, sprite.rect.Height);
         }
 
         private void Render()
@@ -108,13 +116,11 @@ namespace TamanaEngine
             GL.DrawArrays(PrimitiveType.Triangles, 0, myVertices.Length);
         }
 
-        private void GetEverythig()
+        private void GetEverything()
         {
             GetModelMatrixDelegate();
             GetUploadMatrixMVPDelegate();
             GetBindTextureDelegate();
-
-            size = new Vector2(sprite.rect.Width, sprite.rect.Height);
         }
 
         private void GenerateBuffer()

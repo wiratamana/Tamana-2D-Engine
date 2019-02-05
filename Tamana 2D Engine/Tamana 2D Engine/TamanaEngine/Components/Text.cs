@@ -44,9 +44,7 @@ namespace TamanaEngine
                 for (int i = 0; i < value.Length; i ++)
                     chars[i] = Core.DefaultFont.GetTexture2DFromChar(value[i]);
 
-                if (textTexture != null)
-                    textTexture.Dispose();
-                textTexture = new Texture2D(chars.Length * chars[0].width, chars[0].height);
+                textTexture.Resize(chars.Length * chars[0].width, chars[0].height);
 
                 var offsetX = 0;
                 for (int i = value.Length - 1; i >= 0; i --)
@@ -87,8 +85,8 @@ namespace TamanaEngine
 
         private void Awake()
         {
-
             shader = new Core.Shader("./res/SpriteRendererVertex.txt", "./res/SpriteRendererFragment.txt");
+            textTexture = new Texture2D(1,1);
 
             GetModelMatrixDelegate();
             GetUploadMatrixMVPDelegate();

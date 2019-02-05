@@ -26,12 +26,11 @@ namespace TamanaEngine
 
         private int colorDepth;
         private int colorStep;
+        private Bitmap bitmap;
         private BitmapData bmData;
         private IntPtr pointer;
 
         private byte[] colorsByte;
-
-        private bool wasDisposed;
 
         public Texture2D(int width, int height)
         {
@@ -39,12 +38,6 @@ namespace TamanaEngine
             this.height = height;
 
             GenerateTexture();
-        }
-
-        ~Texture2D()
-        {
-            Console.WriteLine("This is just a destructor!");
-            if (!wasDisposed) Dispose();
         }
 
         public Color GetPixel(int x, int y)
@@ -106,10 +99,30 @@ namespace TamanaEngine
         }
         public void Apply()
         {
+            GL.BindTexture(TextureTarget.Texture2D, _textureID);
             Marshal.Copy(colorsByte, 0, pointer, colorsByte.Length);
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0,
                 OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, pointer);
+        }
+        public void Resize(int width, int height)
+        {
+            this.width = width;
+            this.height = height;
+
+            int PixelCount = width * height;
+
+            bitmap.UnlockBits(bmData);
+            bitmap = new Bitmap(bitmap, new Size(width, height));
+
+            bmData = bitmap.LockBits(new Rectangle(0, 0, width, height), 
+                ImageLockMode.ReadWrite, bitmap.PixelFormat);
+
+            colorStep = colorDepth / 8;
+            colorsByte = new byte[PixelCount * colorStep];
+            pointer = bmData.Scan0;
+
+            Marshal.Copy(pointer, colorsByte, 0, colorsByte.Length);
         }
 
         private void BindTexture()
@@ -122,8 +135,9 @@ namespace TamanaEngine
             GL.GenTextures(1, out _textureID);
             GL.BindTexture(TextureTarget.Texture2D, _textureID);
 
-            var bmp = new Bitmap(width, height);
-            bmp.RotateFlip(RotateFlipType.Rotate180FlipNone);
+            bitmap = new Bitmap(width, height);
+
+            bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
 
             try
             {
@@ -131,19 +145,19 @@ namespace TamanaEngine
 
                 Rectangle rect = new Rectangle(0, 0, width, height);
 
-                colorDepth = Bitmap.GetPixelFormatSize(bmp.PixelFormat);
+                colorDepth = Bitmap.GetPixelFormatSize(bitmap.PixelFormat);
 
                 if (colorDepth != 8 && colorDepth != 24 && colorDepth != 32)
                 {
                     throw new ArgumentException("Only 8, 24 and 32 bpp images are supported.");
                 }
 
-                bmData = bmp.LockBits(rect, ImageLockMode.ReadWrite, bmp.PixelFormat);
+                bmData = bitmap.LockBits(rect, ImageLockMode.ReadWrite, bitmap.PixelFormat);
 
                 colorStep = colorDepth / 8;
                 colorsByte = new byte[PixelCount * colorStep];
                 pointer = bmData.Scan0;
-
+                
                 Marshal.Copy(pointer, colorsByte, 0, colorsByte.Length);
             }
             catch (Exception ex) { throw ex; }
@@ -169,8 +183,6 @@ namespace TamanaEngine
             bmData = null;
             pointer = IntPtr.Zero;
             colorsByte = null;
-
-            wasDisposed = true;
         }
     }
 }
