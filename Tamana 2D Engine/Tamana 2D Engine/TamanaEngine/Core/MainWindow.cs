@@ -24,18 +24,19 @@ namespace TamanaEngine.Core
         0, // OpenGL minor version
         GraphicsContextFlags.ForwardCompatible)
         {
-            Mouse.SetPosition(1920 / 2, 1080/2);
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
             
-
+            Mouse.SetPosition(1920 / 2, 1080/2);
+            Console.WriteLine("Screen resolution : Height = {0} | Width = {1}", Height, Width);
+            
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             FileManager.CopyShadersToGameDirectory();
+            FileManager.Write();
             TimeMethodCaller.GetSetDeltaTimeDelegate();
             DefaultFont.InitFont();
-
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            sw.Start();
 
             var mainCamera = new GameObject("MainCamera");
             mainCamera.AddComponent<Camera>();
@@ -50,7 +51,6 @@ namespace TamanaEngine.Core
             var image = new GameObject("image");
             image.AddComponent<SpriteRenderer>();
             image.transform.position = new Vector3(0, 0, 50);
-            //image.GetComponent<SpriteRenderer>().sprite = new Sprite("./res/sprite.png");
 
             sw.Stop();
             Console.WriteLine("Load time : " + sw.ElapsedMilliseconds + "ms.");
