@@ -61,13 +61,8 @@ namespace TamanaEngine
                 myVertices[35] = -value.X;
                 myVertices[36] = value.Y;
 
-                IntPtr vertPtr = System.Runtime.InteropServices.Marshal.AllocHGlobal(myVertices.Length * sizeof(float));
-                System.Runtime.InteropServices.Marshal.Copy(myVertices, 0, vertPtr, myVertices.Length);
-
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-                GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * myVertices.Length, vertPtr, BufferUsageHint.StaticDraw);
-
-                System.Runtime.InteropServices.Marshal.FreeHGlobal(vertPtr);
+                GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * myVertices.Length, myVertices, BufferUsageHint.StaticDraw);
             }
         }
 

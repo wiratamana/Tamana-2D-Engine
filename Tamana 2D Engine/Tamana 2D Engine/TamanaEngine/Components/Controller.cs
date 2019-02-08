@@ -78,30 +78,6 @@ namespace TamanaEngine
             text.text = "X : " + (int)spriteRenderer.transform.position.X + " | Y : " + (int)spriteRenderer.transform.position.Y;
             text2.text = "X : " + (int)spriteRenderer.size.X + " | Y : " + (int)spriteRenderer.size.Y;
             text3.text = "X : " + Input.mousePosition.X + " | Y : " + Input.mousePosition.Y;
-            if (Input.GetKey(Key.Left))
-            {
-                time += Time.deltaTime;
-
-                //GameObject.FindObjectOfType<SpriteRenderer>().transform.rotation = OpenTK.Quaternion.FromEulerAngles(new OpenTK.Vector3(0, 0,
-                //    OpenTK.MathHelper.DegreesToRadians(time)));
-
-                //Texture2D wira = new Texture2D(100, 100);
-                //for(int i = 0; i < 100; i ++)
-                //    for(int j = 0; j < 100; j++)
-                //    {
-                //        wira.SetPixel(i, j, System.Drawing.Color.Aqua);
-                //    }
-                //
-                //wira.Apply();
-                //
-                //spriteRenderer.sprite = new Sprite(wira);
-
-                spriteRenderer.size = new OpenTK.Vector2(200, 200);
-                
-               
-                //GameObject.FindObjectOfType<SpriteRenderer>().sprite = new Sprite(wira);
-            }
-
         }
 
         private void CameraController()

@@ -65,7 +65,6 @@ namespace TamanaEngine
                 size = new Vector2(sizeX, sizeY);
 
                 UploadNewVerticesToGPU();
-                GetBindTextureDelegate();
             }
         }
 
@@ -86,18 +85,17 @@ namespace TamanaEngine
         private void Awake()
         {
             shader = new Core.Shader("./res/SpriteRendererVertex.txt", "./res/SpriteRendererFragment.txt");
-            textTexture = new Texture2D(1,1);
+            textTexture = new Texture2D(100, 100);
 
             GetModelMatrixDelegate();
             GetUploadMatrixMVPDelegate();
+            GetBindTextureDelegate();
             GenerateBuffer();
-
-            color = System.Drawing.Color.Red;
         }
 
         private void Render()
         {
-            bindTexture?.Invoke();
+            bindTexture.Invoke();
 
             shader.UseProgram();
             uploadMatrixMVP.Invoke(shader, model.Invoke());

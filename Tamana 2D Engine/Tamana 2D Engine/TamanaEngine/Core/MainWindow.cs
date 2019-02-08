@@ -34,7 +34,7 @@ namespace TamanaEngine.Core
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             FileManager.CopyShadersToGameDirectory();
-            FileManager.Write();
+            //FileManager.Write();
             TimeMethodCaller.GetSetDeltaTimeDelegate();
             DefaultFont.InitFont();
 
@@ -46,7 +46,6 @@ namespace TamanaEngine.Core
             
             go.AddComponent<Text>().text = "Wiratamana";            
             go.transform.position = new Vector3(0, 0, 50);
-            go.GetComponent<Text>().color = System.Drawing.Color.HotPink;
 
             var image = new GameObject("image");
             image.AddComponent<SpriteRenderer>();
