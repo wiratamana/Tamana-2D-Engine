@@ -17,7 +17,7 @@ namespace TamanaEngine.Core
 
 namespace TamanaEngine
 {
-     public class Sprite
+     public class Sprite : IDisposable
     {
         public RectangleF rect { private set; get; }
         public Texture2D texture { private set; get; }
@@ -32,6 +32,12 @@ namespace TamanaEngine
         {
             texture = new Texture2D(100, 100);
             rect = new RectangleF(0, 0, texture.width, texture.height);
+        }
+
+        public void Dispose()
+        {
+            texture.Dispose();
+            texture = null;
         }
     }
 }

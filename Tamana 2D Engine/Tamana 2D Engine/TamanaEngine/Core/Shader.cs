@@ -44,9 +44,7 @@ namespace TamanaEngine.Core
 
             GL.LinkProgram(program);
             if (!string.IsNullOrEmpty(GL.GetProgramInfoLog(program)))
-                throw new Exception("Failed to link program. \nReason : \n" + GL.GetProgramInfoLog(program));
-
-            Console.WriteLine("Shader");
+                throw new Exception("Failed to link program. \nReason : \n" + GL.GetProgramInfoLog(program));   
 
             GL.DeleteShader(vertexShader);
             GL.DeleteShader(fragmentShader);

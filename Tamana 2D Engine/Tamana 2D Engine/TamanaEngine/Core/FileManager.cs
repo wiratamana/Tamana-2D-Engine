@@ -13,7 +13,7 @@ namespace TamanaEngine.Core
         private static string shadersLocation = string.Empty;
 
         private const string SHADER_FOLDER_NAME = "Shaders";
-#if DEBUG
+
         public static void CopyShadersToGameDirectory()
         {
             var rootDirectory = Directory.GetParent("../../res").FullName;
@@ -44,7 +44,6 @@ namespace TamanaEngine.Core
                 File.Copy(file, destination);
             }
         }
-#endif
 
         private static void GetShadersLocation(string startLocation)
         {

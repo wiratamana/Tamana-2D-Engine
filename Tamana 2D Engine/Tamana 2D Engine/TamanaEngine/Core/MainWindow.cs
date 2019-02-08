@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
-using OpenTK.Input;
 
 namespace TamanaEngine.Core
 {
@@ -27,14 +26,12 @@ namespace TamanaEngine.Core
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
             
-            Mouse.SetPosition(1920 / 2, 1080/2);
             Console.WriteLine("Screen resolution : Height = {0} | Width = {1}", Height, Width);
             
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
             FileManager.CopyShadersToGameDirectory();
-            //FileManager.Write();
             TimeMethodCaller.GetSetDeltaTimeDelegate();
             DefaultFont.InitFont();
 

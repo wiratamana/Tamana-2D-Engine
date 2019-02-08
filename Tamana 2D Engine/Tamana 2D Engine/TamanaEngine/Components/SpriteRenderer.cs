@@ -20,9 +20,10 @@ namespace TamanaEngine
                 if (value == null)
                     return;
 
-                _sprite.texture.Dispose();
+                _sprite.Dispose();
+
                 _sprite = value;
-                GetBindTextureDelegate();
+                GetEverythig();
             }
         }
 
@@ -42,6 +43,16 @@ namespace TamanaEngine
                 value.Y /= 2f;
                 _size = value;
 
+                 float[] vertices =
+                 {
+                      value.X,  value.Y,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
+                      value.X, -value.Y,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // bottom right
+                     -value.X, -value.Y,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
+                      
+                      value.X,  value.Y,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
+                     -value.X, -value.Y,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
+                     -value.X,  value.Y,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // top left 
+                 };
 
                 myVertices[0] = value.X;
                 myVertices[1] = value.Y;
@@ -60,6 +71,8 @@ namespace TamanaEngine
 
                 myVertices[35] = -value.X;
                 myVertices[36] = value.Y;
+
+                myVertices = vertices;
 
                 GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
                 GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * myVertices.Length, myVertices, BufferUsageHint.StaticDraw);
@@ -94,10 +107,12 @@ namespace TamanaEngine
             shader = new Core.Shader("./res/SpriteRendererVertex.txt", "./res/SpriteRendererFragment.txt");
             _sprite = new Sprite("./res/sprite.png");            
 
-            GetEverything();
+            GetEverythig();
             GenerateBuffer();
 
-            size = new Vector2(sprite.rect.Width, sprite.rect.Height);
+            myVertices = vertices;
+            GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * myVertices.Length, myVertices, BufferUsageHint.StaticDraw);
         }
 
         private void Render()
@@ -111,11 +126,13 @@ namespace TamanaEngine
             GL.DrawArrays(PrimitiveType.Triangles, 0, myVertices.Length);
         }
 
-        private void GetEverything()
+        private void GetEverythig()
         {
             GetModelMatrixDelegate();
             GetUploadMatrixMVPDelegate();
             GetBindTextureDelegate();
+
+            size = new Vector2(sprite.rect.Width, sprite.rect.Height);
         }
 
         private void GenerateBuffer()
