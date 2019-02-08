@@ -31,8 +31,6 @@ namespace TamanaEngine
 
         private byte[] colorsByte;
 
-        private bool wasDisposed;
-
         public Texture2D(int width, int height)
         {
             this.width = width;
@@ -163,8 +161,6 @@ namespace TamanaEngine
             bmData = null;
             pointer = IntPtr.Zero;
             colorsByte = null;
-
-            wasDisposed = true;
         }
     }
 }
