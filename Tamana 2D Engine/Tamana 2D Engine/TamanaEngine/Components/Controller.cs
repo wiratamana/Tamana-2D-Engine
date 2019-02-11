@@ -28,11 +28,13 @@ namespace TamanaEngine
             text = a.AddComponent<Text>();
             text.color = System.Drawing.Color.Aqua;
 
-            text.transform.position = new OpenTK.Vector3(0, 300, 50);
+            text.transform.position = new OpenTK.Vector3(0, 300, 0);
             text.text = "WIRA GANTENG";
 
             xMax = spriteRenderer.size.X / 1;
             xMin = spriteRenderer.size.X / -1;
+
+            spriteRenderer.size = new OpenTK.Vector2(100, 100);
 
             System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, 100, 100);
         }

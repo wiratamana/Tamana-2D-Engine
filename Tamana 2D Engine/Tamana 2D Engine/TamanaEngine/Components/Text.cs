@@ -136,7 +136,7 @@ namespace TamanaEngine
 
         private void GetUploadMatrixMVPDelegate()
         {           
-            uploadMatrixMVP = CreateDelegate<Core.UploadMatrixMVP>("UploadMatrixMVP", GameObject.FindObjectOfType<Camera>(),
+            uploadMatrixMVP = CreateDelegate<Core.UploadMatrixMVP>("UploadMatrixUI", GameObject.FindObjectOfType<Camera>(),
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         }
 

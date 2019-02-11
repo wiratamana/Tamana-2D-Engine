@@ -51,8 +51,8 @@ namespace TamanaEngine.Core
                 this.fontX_Min = fontX_Min;
                 this.fontY_Max = fontY_Max;
                 this.fontY_Min = fontY_Min;
-                bitmapX = Math.Abs(fontX_Min - fontX_Max) + 2;
-                bitmapY = Math.Abs(fontY_Min - fontY_Max) + 4;
+                bitmapX = Math.Abs(fontX_Min - fontX_Max) - 6;
+                bitmapY = Math.Abs(fontY_Min - fontY_Max);
             }
         }
 
@@ -113,7 +113,7 @@ namespace TamanaEngine.Core
 
                     char c = (char)(n + p * Settings.GlyphsPerLine);
 
-                    g.DrawString(c.ToString(), font, Brushes.White, 0, 0);
+                    g.DrawString(c.ToString(), font, Brushes.White, -4, 0);
                     bitmap.RotateFlip(RotateFlipType.Rotate180FlipNone);
 
                     var texture = new Texture2D(bitmapWidth, bitmapHeight);
@@ -121,8 +121,9 @@ namespace TamanaEngine.Core
                         for(int y = 0; y < texture.height; y++)
                         {
                             Color fontColor = bitmap.GetPixel(x, y);
-                            if (fontColor.A == 0 && !fontProperty)
+                            if (!fontProperty && fontColor.A == 0)
                                 fontColor = Color.FromArgb(0,0,0,0);
+
                             texture.SetPixel(x, y, fontColor);
                         }
 
