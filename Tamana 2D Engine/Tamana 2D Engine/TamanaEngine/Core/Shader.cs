@@ -64,5 +64,15 @@ namespace TamanaEngine.Core
         {
             GL.Uniform1(GL.GetUniformLocation(program, uniformName), value);
         }
+
+        public void SetVec3(string uniformName, OpenTK.Vector3 value)
+        {
+            GL.Uniform3(GL.GetUniformLocation(program, uniformName), value);
+        }
+
+        public void SetVec2(string uniformName, OpenTK.Vector2 value)
+        {
+            GL.Uniform2(GL.GetUniformLocation(program, uniformName), value);
+        }
     }
 }

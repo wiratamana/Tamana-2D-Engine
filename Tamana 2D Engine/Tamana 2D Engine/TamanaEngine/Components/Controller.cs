@@ -14,33 +14,36 @@ namespace TamanaEngine
         private float time;
 
         SpriteRenderer spriteRenderer;
+
+        Text text;
+
+        float xMax;
+        float xMin;
     
         private void Start()
         {
             cameraTransform = GameObject.FindObjectOfType<Camera>().transform;
             spriteRenderer = GameObject.FindObjectOfType<SpriteRenderer>();
+            var a = new GameObject("GANTENG");
+            text = a.AddComponent<Text>();
+            text.color = System.Drawing.Color.Aqua;
+
+            text.transform.position = new OpenTK.Vector3(0, 300, 50);
+            text.text = "WIRA GANTENG";
+
+            xMax = spriteRenderer.size.X / 1;
+            xMin = spriteRenderer.size.X / -1;
+
+            System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, 100, 100);
         }
 
         private void Update()
         {
             if (Input.GetKey(Key.Left))
-            {
-                time += 90 * Time.deltaTime;
+                cameraTransform.position -= new OpenTK.Vector3(-100 * Time.deltaTime, 0, 0);
 
-                spriteRenderer.transform.rotation = OpenTK.Quaternion.FromEulerAngles(new OpenTK.Vector3(0, 0,
-                    OpenTK.MathHelper.DegreesToRadians(time)));
-
-                Texture2D wira = new Texture2D(100, 100);
-                for(int i = 0; i < 100; i ++)
-                    for(int j = 0; j < 100; j++)
-                    {
-                        wira.SetPixel(i, j, System.Drawing.Color.Aqua);
-                    }
-
-                wira.Apply();
-
-                spriteRenderer.sprite = new Sprite(wira);
-            }
+            if (Input.GetKey(Key.Space))
+                text.color = System.Drawing.Color.Orange;
         }
 
         private void CameraController()

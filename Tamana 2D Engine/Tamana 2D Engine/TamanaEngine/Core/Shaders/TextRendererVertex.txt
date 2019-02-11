@@ -1,14 +1,13 @@
-﻿#version 330
-layout (location = 0) in vec2 position;
-layout (location = 1) in vec3 color;
+﻿#version 330 core
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec2 aTexCoord;
 
-out vec2 outPosition;
-out vec3 outColor;
+out vec2 TexCoord;
 
-out mat4 textMatrix;
+uniform mat4 matrixMVP;
 
 void main()
 {
-	gl_Position = textMatrix * vec4(position, 0.0, 1.0);
-	outColor = color;
+	gl_Position = matrixMVP * vec4(aPos, 0.0, 1.0);
+	TexCoord = vec2(aTexCoord.x, aTexCoord.y);
 }

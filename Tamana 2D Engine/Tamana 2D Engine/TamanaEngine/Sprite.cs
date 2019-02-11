@@ -30,8 +30,22 @@ namespace TamanaEngine
 
         public Sprite(string spriteFile)
         {
-            texture = new Texture2D(100, 100);
+            Bitmap spriteData = new Bitmap(spriteFile);
+            spriteData.RotateFlip(RotateFlipType.Rotate180FlipNone);
+            texture = new Texture2D(spriteData.Width, spriteData.Height);
             rect = new RectangleF(0, 0, texture.width, texture.height);
+
+            for (int x = 0; x < texture.width; x++)
+            {
+                for(int y = 0; y < texture.height; y++)
+                {
+                    texture.SetPixel(x, y, spriteData.GetPixel(x, y));
+                }
+            }
+
+            texture.Apply();
+
+            spriteData.Dispose();
         }
 
         public void Dispose()

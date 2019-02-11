@@ -121,10 +121,8 @@ namespace TamanaEngine.Core
                         for(int y = 0; y < texture.height; y++)
                         {
                             Color fontColor = bitmap.GetPixel(x, y);
-                            if (fontColor.A == 0 && c == 'W')
-                                fontColor = Color.FromArgb(255, 0, 0, 0);
-                            if (fontColor.A == 0 && c == 'i')
-                                fontColor = Color.FromArgb(255, 0, 255, 255);
+                            if (fontColor.A == 0 && !fontProperty)
+                                fontColor = Color.FromArgb(0,0,0,0);
                             texture.SetPixel(x, y, fontColor);
                         }
 

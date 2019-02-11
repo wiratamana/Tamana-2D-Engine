@@ -20,13 +20,13 @@ namespace TamanaEngine
 
         private float[] vertices =
             {
-                      .5f,  .5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
-                      .5f, -.5f,   1.0f, 1.0f, 1.0f,   1.0f, 0.0f, // bottom right
-                     -.5f, -.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
+                      .5f,  .5f,  1.0f, 1.0f, // top right
+                      .5f, -.5f,  1.0f, 0.0f, // bottom right
+                     -.5f, -.5f,  0.0f, 0.0f, // bottom left
                       
-                      .5f,  .5f,   1.0f, 1.0f, 1.0f,   1.0f, 1.0f, // top right
-                     -.5f, -.5f,   1.0f, 1.0f, 1.0f,   0.0f, 0.0f, // bottom left
-                     -.5f,  .5f,   1.0f, 1.0f, 1.0f,   0.0f, 1.0f  // top left 
+                      .5f,  .5f,  1.0f, 1.0f, // top right
+                     -.5f, -.5f,  0.0f, 0.0f, // bottom left
+                     -.5f,  .5f,  0.0f, 1.0f  // top left 
             };
         private Vector2 size;
 
@@ -70,14 +70,13 @@ namespace TamanaEngine
             }
         }
 
-        private System.Drawing.Color _color;
+        private Vector4 _color;
         public System.Drawing.Color color
         {
-            get { return _color; }
+            get { return System.Drawing.Color.FromArgb((int)_color.X * 255, (int)_color.Y * 255, (int)_color.Z * 255, (int)_color.W * 255); }
             set
             {
-                _color = value;
-                UploadNewVerticesToGPU();
+                _color = new Vector4(1, value.R / 255f, value.G / 255f, value.B / 255f);
             }
         }
 
@@ -86,12 +85,12 @@ namespace TamanaEngine
 
         private void Awake()
         {
-
-            shader = new Core.Shader("./res/SpriteRendererVertex.txt", "./res/SpriteRendererFragment.txt");
+            shader = new Core.Shader("./res/TextRendererVertex.txt", "./res/TextRendererFragment.txt");
 
             textTexture = new Texture2D(100, 100);
 
-
+            uploadMatrixMVP = CreateDelegate<Core.UploadMatrixMVP>("UploadMatrixMVP", GameObject.FindObjectOfType<Camera>(),
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             GetModelMatrixDelegate();
             GetUploadMatrixMVPDelegate();
             GetBindTextureDelegate();
@@ -104,6 +103,7 @@ namespace TamanaEngine
 
             shader.UseProgram();
             uploadMatrixMVP.Invoke(shader, model.Invoke());
+            shader.SetVec3("color", new Vector3(_color.Y, _color.Z, _color.W));
 
             GL.BindVertexArray(VAO);
             GL.DrawArrays(PrimitiveType.Triangles, 0, vertices.Length);
@@ -113,86 +113,56 @@ namespace TamanaEngine
         {
             float[] newVertices =
                 {
-                      size.X,  size.Y,   _color.R/255f, _color.G, _color.B,   1.0f, 1.0f, // top right
-                      size.X, -size.Y,   _color.R/255f, _color.G, _color.B,   1.0f, 0.0f, // bottom right
-                     -size.X, -size.Y,   _color.R/255f, _color.G, _color.B,   0.0f, 0.0f, // bottom left
+                      size.X,  size.Y,  1.0f, 1.0f, // top right
+                      size.X, -size.Y,  1.0f, 0.0f, // bottom right
+                     -size.X, -size.Y,  0.0f, 0.0f, // bottom left
                               
-                      size.X,  size.Y,   _color.R/255f, _color.G, _color.B,   1.0f, 1.0f, // top right
-                     -size.X, -size.Y,   _color.R/255f, _color.G, _color.B,   0.0f, 0.0f, // bottom left
-                     -size.X,  size.Y,   _color.R/255f, _color.G, _color.B,   0.0f, 1.0f  // top left 
+                      size.X,  size.Y,  1.0f, 1.0f, // top right
+                     -size.X, -size.Y,  0.0f, 0.0f, // bottom left
+                     -size.X,  size.Y,  0.0f, 1.0f  // top left 
                  };
 
             vertices = newVertices;
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.DynamicDraw);
         }
 
         private void GetModelMatrixDelegate()
         {
-            var modelMatrix = transform.GetType().GetMethod("GetModelMatrix",
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.IgnoreReturn);
-
-            if (modelMatrix == null)
-            {
-                var methods = transform.GetType().GetMethods(
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.IgnoreReturn);
-
-                string foundedMethods = string.Empty;
-
-                foreach (var m in methods)
-                    foundedMethods += m.Name + "\n";
-
-                throw new NullReferenceException("\nCannot find method 'GetModelMatrix'. Founded methood : \n" + foundedMethods);
-            }
-
-            model = modelMatrix.CreateDelegate(typeof(Core.GetModelMatrix), transform) as Core.GetModelMatrix;
+            model = CreateDelegate<Core.GetModelMatrix>("GetModelMatrix", transform,
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         }
 
         private void GetUploadMatrixMVPDelegate()
-        {
-            var mainCamera = GameObject.FindObjectOfType<Camera>();
-            if (mainCamera == null)
-                throw new NullReferenceException("Could not find Camera component.");
-
-            var method = mainCamera.GetType().GetMethod("UploadMatrixMVP",
-               System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-
-            if (method == null)
-            {
-                var methods = mainCamera.GetType().GetMethods(
+        {           
+            uploadMatrixMVP = CreateDelegate<Core.UploadMatrixMVP>("UploadMatrixMVP", GameObject.FindObjectOfType<Camera>(),
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-
-                string foundedMethods = string.Empty;
-
-                foreach (var m in methods)
-                    foundedMethods += m.Name + "\n";
-
-                throw new NullReferenceException("\nCannot find method 'GetModelMatrix'. Founded methood : \n" + foundedMethods);
-            }
-
-            uploadMatrixMVP = method.CreateDelegate(typeof(Core.UploadMatrixMVP), mainCamera) as Core.UploadMatrixMVP;
         }
 
         private void GetBindTextureDelegate()
         {
-            var method = textTexture.GetType().GetMethod("BindTexture",
-               System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            bindTexture = CreateDelegate<Core.BindTexture>("BindTexture", textTexture,
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        }
+
+        private T CreateDelegate<T>(string methodName, object classObj, System.Reflection.BindingFlags flags) where T : Delegate
+        {
+            var method = classObj.GetType().GetMethod(methodName, flags);
 
             if (method == null)
             {
-                var methods = textTexture.GetType().GetMethods(
-                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                var methods = classObj.GetType().GetMethods(flags);
 
                 string foundedMethods = string.Empty;
 
                 foreach (var m in methods)
                     foundedMethods += m.Name + "\n";
 
-                throw new NullReferenceException("\nCannot find method 'BufferNewData'. Founded methood : \n" + foundedMethods);
+                throw new NullReferenceException(string.Format("\nCannot find method {0}. Founded methood : \n", methodName) + foundedMethods);
             }
 
-            bindTexture = method.CreateDelegate(typeof(Core.BindTexture), textTexture) as Core.BindTexture;
+            return method.CreateDelegate(typeof(T), classObj) as T;
         }
 
         private void GenerateBuffer()
@@ -203,16 +173,13 @@ namespace TamanaEngine
             GL.BindVertexArray(VAO);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.DynamicDraw);
 
-            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, sizeof(float) * 7, 0 * sizeof(float));
+            GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, sizeof(float) * 4, 0 * sizeof(float));
             GL.EnableVertexAttribArray(0);
 
-            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, sizeof(float) * 7, 2 * sizeof(float));
+            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, sizeof(float) * 4, 2 * sizeof(float));
             GL.EnableVertexAttribArray(1);
-
-            GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, sizeof(float) * 7, 5 * sizeof(float));
-            GL.EnableVertexAttribArray(2);
         }
 
         protected override void DestroyComponent()

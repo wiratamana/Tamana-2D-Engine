@@ -17,7 +17,7 @@ namespace TamanaEngine.Core
         Screen.height, // initial height
         GraphicsMode.Default,
         "Tamana Engine",  // initial title
-        GameWindowFlags.Default,
+        GameWindowFlags.FixedWindow,
         DisplayDevice.Default,
         4, // OpenGL major version
         0, // OpenGL minor version
@@ -25,9 +25,10 @@ namespace TamanaEngine.Core
         {
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             sw.Start();
-            
+            Height = Screen.height;
+            Width = Screen.width;
             Console.WriteLine("Screen resolution : Height = {0} | Width = {1}", Height, Width);
-            
+
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
@@ -37,12 +38,12 @@ namespace TamanaEngine.Core
 
             var mainCamera = new GameObject("MainCamera");
             mainCamera.AddComponent<Camera>();
-            mainCamera.transform.position = new Vector3(0, 0, 0);
+            mainCamera.transform.position = new Vector3(0, 0, -6);
 
             var go = new GameObject("Wira");
             
-            go.AddComponent<Text>().text = "Wiratamana";            
-            go.transform.position = new Vector3(0, 0, 50);
+            go.AddComponent<Text>().text = "Wiratamana2";            
+            go.transform.position = new Vector3(0, 0, 0);
 
             var image = new GameObject("image");
             image.AddComponent<SpriteRenderer>();
@@ -70,7 +71,7 @@ namespace TamanaEngine.Core
         {
             TimeMethodCaller.InvokeSetDeltaTime((float)UpdatePeriod);
 
-            RuntimeUpdater.InvokeUpdateMethods();            
+            RuntimeUpdater.InvokeUpdateMethods();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
