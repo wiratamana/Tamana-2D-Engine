@@ -9,65 +9,49 @@ using OpenTK.Graphics.OpenGL;
 
 namespace TamanaEngine
 {
-    public class Text : ComponentUI
+    public class Image : ComponentUI
     {
         private Core.GetModelMatrix model;
         private Core.UploadMatrixMVP uploadMatrixMVP;
         private Core.BindTexture bindTexture;
+
         private Core.Shader shader;
 
-        private Texture2D textTexture;
+        private int VBO;
+        private int VAO;
 
-        private float[] vertices =
-            {
-                      .5f,  .5f,  1.0f, 1.0f, // top right
-                      .5f, -.5f,  1.0f, 0.0f, // bottom right
-                     -.5f, -.5f,  0.0f, 0.0f, // bottom left
-                      
-                      .5f,  .5f,  1.0f, 1.0f, // top right
-                     -.5f, -.5f,  0.0f, 0.0f, // bottom left
-                     -.5f,  .5f,  0.0f, 1.0f  // top left 
-            };
-        private Vector2 size;
-
-        private string _text;
-        public string text
+        private Sprite _sprite;
+        public Sprite sprite
         {
-            get { return _text; }
+            get { return _sprite; }
             set
             {
-                _text = value;
-                if (string.IsNullOrEmpty(value))
-                    return;
-
-                var chars = new Texture2D[value.Length];
-                for (int i = 0; i < value.Length; i ++)
-                    chars[i] = Core.DefaultFont.GetTexture2DFromChar(value[i]);
-
-                if (textTexture != null)
-                    textTexture.Dispose();
-                textTexture = new Texture2D(chars.Length * chars[0].width, chars[0].height);
-
-                var offsetX = 0;
-                for (int i = value.Length - 1; i >= 0; i --)
-                {
-                    for (int x = 0; x < chars[0].width; x++)
-                        for(int y = 0; y < chars[0].height; y++)
-                        {
-                            textTexture.SetPixel(offsetX + x, y, chars[i].GetPixel(x, y));
-                        }
-                    offsetX += chars[0].width;
-                }
-
-                textTexture.Apply();
-
-                var sizeX = textTexture.width / 2f;
-                var sizeY = textTexture.height / 2f;
-
-                size = new Vector2(sizeX, sizeY);
-
+                _sprite = value;
+                size = new Vector2(_sprite.rect.Width, _sprite.rect.Height);
+                GetBindTextureDelegate();
                 UploadNewVerticesToGPU();
             }
+        }
+
+        private Vector2 size;
+        public bool raycastTarget { get; set; }
+        public bool isMouseOverlap
+        {
+            get
+            {
+                if (!raycastTarget)
+                    return false;
+
+                var mousePosition = Input.mousePositionGL;
+                var pos = transform.position;
+                var halfSize = size / 2f;
+
+                if (mousePosition.X < pos.X + halfSize.X && mousePosition.X > pos.X - halfSize.X &&
+                    mousePosition.Y < pos.Y + halfSize.Y && mousePosition.Y > pos.Y - halfSize.Y)
+                    return true;
+
+                return false;
+            }       
         }
 
         private Vector4 _color;
@@ -80,14 +64,23 @@ namespace TamanaEngine
             }
         }
 
-        private int VBO;
-        private int VAO;
+        private float[] vertices =
+            {
+                      .5f,  .5f,  1.0f, 1.0f, // top right
+                      .5f, -.5f,  1.0f, 0.0f, // bottom right
+                     -.5f, -.5f,  0.0f, 0.0f, // bottom left
+                      
+                      .5f,  .5f,  1.0f, 1.0f, // top right
+                     -.5f, -.5f,  0.0f, 0.0f, // bottom left
+                     -.5f,  .5f,  0.0f, 1.0f  // top left 
+            };
 
         private void Awake()
         {
             shader = new Core.Shader("./res/TextRendererVertex.txt", "./res/TextRendererFragment.txt");
-
-            textTexture = new Texture2D(100, 100);
+            sprite = new Sprite(new Texture2D(100, 100));
+            size = new Vector2(100, 100);
+            color = System.Drawing.Color.White;
 
             GetModelMatrixDelegate();
             GetUploadMatrixMVPDelegate();
@@ -111,19 +104,19 @@ namespace TamanaEngine
         {
             float[] newVertices =
                 {
-                      size.X,  size.Y,  1.0f, 1.0f, // top right
-                      size.X, -size.Y,  1.0f, 0.0f, // bottom right
-                     -size.X, -size.Y,  0.0f, 0.0f, // bottom left
-                              
-                      size.X,  size.Y,  1.0f, 1.0f, // top right
-                     -size.X, -size.Y,  0.0f, 0.0f, // bottom left
-                     -size.X,  size.Y,  0.0f, 1.0f  // top left 
+                      size.X / 2f,  size.Y / 2f, 1.0f, 1.0f, // top right
+                      size.X / 2f, -size.Y / 2f, 1.0f, 0.0f, // bottom right
+                     -size.X / 2f, -size.Y / 2f, 0.0f, 0.0f, // bottom left
+                                               
+                      size.X / 2f,  size.Y / 2f, 1.0f, 1.0f, // top right
+                     -size.X / 2f, -size.Y / 2f, 0.0f, 0.0f, // bottom left
+                     -size.X / 2f,  size.Y / 2f, 0.0f, 1.0f  // top left 
                  };
 
             vertices = newVertices;
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.StaticDraw);
         }
 
         private void GetModelMatrixDelegate()
@@ -133,14 +126,14 @@ namespace TamanaEngine
         }
 
         private void GetUploadMatrixMVPDelegate()
-        {           
+        {
             uploadMatrixMVP = Core.Util.CreateDelegate<Core.UploadMatrixMVP>("UploadMatrixUI", Camera.camera,
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         }
 
         private void GetBindTextureDelegate()
         {
-            bindTexture = Core.Util.CreateDelegate<Core.BindTexture>("BindTexture", textTexture,
+            bindTexture = Core.Util.CreateDelegate<Core.BindTexture>("BindTexture", _sprite.texture,
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         }
 
@@ -152,7 +145,7 @@ namespace TamanaEngine
             GL.BindVertexArray(VAO);
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, VBO);
-            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.DynamicDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, sizeof(float) * vertices.Length, vertices, BufferUsageHint.StaticDraw);
 
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, sizeof(float) * 4, 0 * sizeof(float));
             GL.EnableVertexAttribArray(0);

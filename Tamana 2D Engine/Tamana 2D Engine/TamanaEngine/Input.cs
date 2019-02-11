@@ -39,7 +39,7 @@ namespace TamanaEngine
             get
             {
                 var state = Mouse.GetCursorState();
-                return new OpenTK.Vector2(state.X -  (1920 / 2), state.Y -  (1080 / 2));
+                return new OpenTK.Vector2(state.X  - (1920 / 2), -(state.Y  - (1080 / 2)));
             }
         }
     }

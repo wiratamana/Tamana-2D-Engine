@@ -59,6 +59,8 @@
     <Compile Include="TamanaEngine\Components\Camera.cs" />
     <Compile Include="TamanaEngine\Components\Canvas.cs" />
     <Compile Include="TamanaEngine\Components\Controller.cs" />
+    <Compile Include="TamanaEngine\Components\Image.cs" />
+    <Compile Include="TamanaEngine\Core\Util.cs" />
     <Compile Include="TamanaEngine\Input.cs" />
     <Compile Include="TamanaEngine\Components\RectTransform.cs" />
     <Compile Include="TamanaEngine\Components\SpriteRenderer.cs" />

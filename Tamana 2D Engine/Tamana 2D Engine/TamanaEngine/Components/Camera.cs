@@ -15,6 +15,18 @@ namespace TamanaEngine
         private static Matrix4 projectionPerspective
         { get { return Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60f), 16f / 9f, .1f, 100f); } }
 
+        private static Camera _camera;
+        public static Camera camera
+        {
+            get
+            {
+                if (_camera == null)
+                    _camera = GameObject.FindObjectOfType<Camera>();
+
+                return _camera;
+            }
+        }
+
         private readonly Matrix4 projectionUI = Matrix4.LookAt(new Vector3(0, 0, -10), new Vector3(0,0,-9), new Vector3(0, 1, 0));
 
         private Matrix4 view;

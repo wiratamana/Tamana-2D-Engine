@@ -16,6 +16,7 @@ namespace TamanaEngine
         SpriteRenderer spriteRenderer;
 
         Text text;
+        Image image;
 
         float xMax;
         float xMin;
@@ -30,6 +31,8 @@ namespace TamanaEngine
 
             text.transform.position = new OpenTK.Vector3(0, 300, 0);
             text.text = "WIRA GANTENG";
+            image = text.AddComponent<Image>();
+            image.raycastTarget = true;
 
             xMax = spriteRenderer.size.X / 1;
             xMin = spriteRenderer.size.X / -1;
@@ -46,6 +49,10 @@ namespace TamanaEngine
 
             if (Input.GetKey(Key.Space))
                 text.color = System.Drawing.Color.Orange;
+
+            if (image.isMouseOverlap)
+                image.color = System.Drawing.Color.Aqua;
+            else image.color = System.Drawing.Color.Firebrick;
         }
 
         private void CameraController()
