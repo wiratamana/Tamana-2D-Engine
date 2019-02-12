@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 using OpenTK.Input;
 
@@ -20,28 +22,36 @@ namespace TamanaEngine
 
         float xMax;
         float xMin;
+
+        List<Sprite> sprites = new List<Sprite>();
     
         private void Start()
         {
             cameraTransform = GameObject.FindObjectOfType<Camera>().transform;
             spriteRenderer = GameObject.FindObjectOfType<SpriteRenderer>();
             var a = new GameObject("GANTENG");
+            image = a.AddComponent<Image>();
             text = a.AddComponent<Text>();
-            text.color = System.Drawing.Color.Aqua;
+            text.color = System.Drawing.Color.Wheat;
 
             text.transform.position = new OpenTK.Vector3(0, 300, 0);
             text.text = "WIRA GANTENG";
-            image = text.AddComponent<Image>();
             image.raycastTarget = true;
+            image.sprite = new Sprite("./res/sprite.png");
 
             xMax = spriteRenderer.size.X / 1;
             xMin = spriteRenderer.size.X / -1;
 
-            spriteRenderer.size = new OpenTK.Vector2(100, 100);
+            spriteRenderer.size = new OpenTK.Vector2(256, 256);
 
             System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, 100, 100);
+
+            sprites.AddRange(Core.Util.GifToSpriteArray("./res/elza.gif"));
+            spriteRenderer.transform.position = new OpenTK.Vector3(0, -200, 0);
+            spriteRenderer.sprite = sprites[0];
         }
 
+        int cnt = 0;
         private void Update()
         {
             if (Input.GetKey(Key.Left))
@@ -50,9 +60,26 @@ namespace TamanaEngine
             if (Input.GetKey(Key.Space))
                 text.color = System.Drawing.Color.Orange;
 
+            time += Time.deltaTime;
+            if(time > 0.25f)
+            {
+                spriteRenderer.sprite = sprites[cnt];
+                cnt++;
+                if (cnt == sprites.Count)
+                    cnt = 0;
+                time = 0;
+            }
+
             if (image.isMouseOverlap)
+            {
                 image.color = System.Drawing.Color.Aqua;
-            else image.color = System.Drawing.Color.Firebrick;
+                image.size = new OpenTK.Vector2(80, 80);
+            }
+            else
+            {
+                image.color = System.Drawing.Color.Firebrick;
+                image.size = new OpenTK.Vector2(100, 100);
+            }
         }
 
         private void CameraController()

@@ -33,7 +33,16 @@ namespace TamanaEngine
             }
         }
 
-        private Vector2 size;
+        private Vector2 _size;
+        public Vector2 size
+        {
+            get { return _size; }
+            set
+            {
+                _size = value;
+                UploadNewVerticesToGPU();
+            }
+        }
         public bool raycastTarget { get; set; }
         public bool isMouseOverlap
         {

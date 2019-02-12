@@ -20,10 +20,8 @@ namespace TamanaEngine
                 if (value == null)
                     return;
 
-                _sprite.Dispose();
-
                 _sprite = value;
-                GetEverythig();
+                GetBindTextureDelegate();
             }
         }
 
